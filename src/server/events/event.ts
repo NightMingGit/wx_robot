@@ -1,8 +1,8 @@
-import { sign_handle } from '@server/events/handles'
+import { signHandle } from '@server/events/handles'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [
-  sign_handle,
+  signHandle,
 ]
 
 function matches(event: event, content: string): boolean {
@@ -17,7 +17,11 @@ function matches(event: event, content: string): boolean {
   return false
 }
 
-function trigger_event(data: msg) {
+function triggerEvent(data: msg) {
+  data.from_id = data.is_group ? data.roomid : data.sender
+  // todo 新人进群
+  // todo 消息计数
+  // todo @机器人 gpt
   for (const event of events) {
     if (event.is_group === data.is_group || !event.is_group) {
       if (matches(event, data.content!)) {
@@ -29,5 +33,5 @@ function trigger_event(data: msg) {
 }
 
 export {
-  trigger_event,
+  triggerEvent,
 }

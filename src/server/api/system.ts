@@ -1,8 +1,14 @@
+import type { response } from '@server/type/type'
 import request from '../request'
 
-export function dbs() {
-  return request({
-    url: '/dbs',
-    method: 'GET',
+export function sendText(msg: string, receiver: string, aters: string = '') {
+  return request<response>({
+    url: '/text',
+    method: 'POST',
+    data: {
+      aters,
+      msg,
+      receiver,
+    },
   })
 }
