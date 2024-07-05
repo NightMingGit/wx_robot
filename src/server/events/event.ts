@@ -1,9 +1,10 @@
-import { signHandle } from '@server/events/handles'
+import { signHandle, testHandle } from '@server/events/handles'
 import { joinGroup } from '@server/events/common'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [
   signHandle,
+  testHandle,
 ]
 
 function matches(event: event, content: string): boolean {
