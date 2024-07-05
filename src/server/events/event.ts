@@ -1,4 +1,5 @@
 import { signHandle } from '@server/events/handles'
+import { joinGroup } from '@server/events/common'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [
@@ -19,7 +20,8 @@ function matches(event: event, content: string): boolean {
 
 function triggerEvent(data: msg) {
   data.from_id = data.is_group ? data.roomid : data.sender
-  // todo 新人进群
+  // 新人进群
+  joinGroup(data)
   // todo 消息计数
   // todo @机器人 gpt
   for (const event of events) {

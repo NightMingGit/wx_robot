@@ -4,7 +4,7 @@
     "jsx": "preserve",
     "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
-    "module": "NodeNext",
+    "module": "ESNext",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "strict": true,

@@ -8,6 +8,10 @@ const model = sequelize.define('user', {
     autoIncrement: true,
     allowNull: false,
   },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   user_id: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -24,6 +28,8 @@ const model = sequelize.define('user', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+}, {
+  timestamps: false,
 })
 
 export default model

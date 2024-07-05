@@ -20,12 +20,11 @@ export interface msg {
   xml: string
   from_id: string
 }
-
-interface baseResponse {
-  error: string
-  status: number
+export interface member {
+  user_id: string
+  name: string
 }
-
-export interface response extends baseResponse {
-  data: any
+export interface contact {
+  UserName: string
+  NickName: string
 }

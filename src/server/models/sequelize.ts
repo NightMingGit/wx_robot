@@ -5,6 +5,7 @@ const sequelize = new Sequelize('robot_data', 'root', '123456', {
   host: 'localhost',
   dialect: 'mysql',
   timezone: '+08:00',
+  logging: false,
   define: {
     freezeTableName: true,
   },
