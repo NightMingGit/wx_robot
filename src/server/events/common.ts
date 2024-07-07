@@ -16,8 +16,10 @@ async function getGroupMembers(roomId: string): Promise<member[]> {
   }
   return members
 }
+
 // 同步群成员
 export async function syncGroups(msg: msg) {
+  console.log('同步群成员')
   const members = await getGroupMembers(msg.roomid)
   for (const item of members) {
     const user = await getUserInfo(item.user_id, msg.roomid)

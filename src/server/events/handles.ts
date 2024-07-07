@@ -1,20 +1,20 @@
-import { syncGroups } from '@server/events/common'
-import type { msg } from '@server/type/type'
+import {syncGroups} from '@server/events/common'
+import type {msg} from '@server/type/type'
 
 export const testHandle = {
-  type: 0,
-  keys: ['测试', '测试2'],
-  is_group: true,
-  handle: (data: msg) => {
-    syncGroups(data)
-  },
+    type: 0,
+    keys: ['测试', '测试2'],
+    is_group: true,
+    handle: (data: msg) => {
+        console.log(data)
+    },
 }
 
 export const signHandle = {
-  type: 0,
-  keys: ['打卡', '签到'],
-  is_group: true,
-  handle: (data: msg) => {
-    // todo
-  },
+    type: 0,
+    keys: ['打卡', '签到'],
+    is_group: true,
+    handle: (data: msg) => {
+        // todo
+    },
 }
