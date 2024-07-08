@@ -1,23 +1,15 @@
-import request from '../request'
+import { post } from '@server/request'
 
 export function sendText(msg: string, receiver: string, aters: string = '') {
-  return request({
-    url: '/text',
-    method: 'POST',
-    data: {
-      aters,
-      msg,
-      receiver,
-    },
+  return post('/text', {
+    msg,
+    receiver,
+    aters,
   })
 }
 export function sql(db: string, sql: string) {
-  return request({
-    url: '/sql',
-    method: 'POST',
-    data: {
-      db,
-      sql,
-    },
+  return post('/sql', {
+    db,
+    sql,
   })
 }

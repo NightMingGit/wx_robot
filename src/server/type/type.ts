@@ -1,3 +1,12 @@
+interface user {
+  id: number
+  name: string
+  user_id: string
+  group_id: string
+  score: number
+  card: number
+}
+
 export interface event {
   type: number
   keys: string[]
@@ -19,7 +28,7 @@ export interface msg {
   extra?: string
   xml: string
   from_id: string
-  userInfo?: object | null
+  userInfo?: user | null
 }
 export interface member {
   user_id: string

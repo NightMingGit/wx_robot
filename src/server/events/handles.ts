@@ -24,8 +24,10 @@ export const handles = [
     type: 0,
     keys: ['我的信息'],
     is_group: true,
-    handle: (data: msg) => {
-      console.log(data)
+    handle: async (data: msg) => {
+      const signResult = await isSign(data.sender, data.roomid)
+      const sendText_ = `昵称：${data.userInfo?.name}\n今日打卡：${signResult ? '是' : '否'}`
+      await sendText(sendText_, data.from_id)
     },
   },
   {

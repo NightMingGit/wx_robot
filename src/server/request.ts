@@ -1,5 +1,7 @@
 import axios from 'axios'
 import logger from '@server/logger'
+import { getData } from '@server/global'
+import { sendText } from '@server/api/system'
 
 function createService() {
   const service = axios.create({
@@ -16,7 +18,7 @@ function createService() {
     },
     (error) => {
       logger.error(`[request error] ${error}`)
-      Promise.reject(error)
+      return Promise.reject(error)
     },
   )
   service.interceptors.response.use(
@@ -26,7 +28,7 @@ function createService() {
     },
     (error) => {
       logger.error(`[response error] ${error}`)
-      Promise.reject(error)
+      return Promise.reject(error)
     },
   )
   return service
@@ -34,4 +36,36 @@ function createService() {
 
 const service = createService()
 
-export default service
+// 封装post方法
+async function post(url: string, data: any) {
+  try {
+    return await service.post(url, data)
+  }
+  catch (error) {
+    sendError(url)
+    logger.error(`POST request to ${url} failed: ${error}`)
+  }
+}
+
+// 封装get方法
+async function get(url: string, params: any) {
+  try {
+    return await service.get(url, { params })
+  }
+  catch (error) {
+    sendError(url)
+    logger.error(`GET request to ${url} failed: ${error}`)
+  }
+}
+
+function sendError(url: string) {
+  // 机器人自身接口不使用 防止无限循环
+  const whiteList = ['/text', '/sql']
+  if (whiteList.includes(url))
+    return
+  const data = getData()
+  sendText('接口异常，请稍后再试', data.from_id)
+}
+
+// 导出封装好的函数
+export { post, get }
