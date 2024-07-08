@@ -3,6 +3,7 @@ import ViteExpress from 'vite-express'
 import logger from '@server/logger'
 import '@server/models/index'
 import '@server/models/redis'
+import '@server/job/index'
 import { triggerEvent } from '@server/events/event'
 import type { msg } from '@server/type/type'
 
