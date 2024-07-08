@@ -37,7 +37,7 @@ function createService() {
 const service = createService()
 
 // 封装post方法
-async function post(url: string, data: any) {
+async function post(url: string, data: any): Promise<any> {
   try {
     return await service.post(url, data)
   }
@@ -48,7 +48,7 @@ async function post(url: string, data: any) {
 }
 
 // 封装get方法
-async function get(url: string, params: any) {
+async function get(url: string, params: any): Promise<any> {
   try {
     return await service.get(url, { params })
   }
@@ -60,11 +60,11 @@ async function get(url: string, params: any) {
 
 function sendError(url: string) {
   // 机器人自身接口不使用 防止无限循环
-  const whiteList = ['/text', '/sql']
+  const whiteList = ['/text', '/sql', '/delete-chatroom-member', '/file', '/image', '/rich-text']
   if (whiteList.includes(url))
     return
   const data = getData()
-  sendText('接口异常，请稍后再试', data.from_id)
+  sendText(`${url}接口异常，请稍后再试`, data.from_id)
 }
 
 // 导出封装好的函数
