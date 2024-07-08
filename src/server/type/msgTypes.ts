@@ -33,4 +33,4 @@ const msgTypes = {
   1040187441: '音乐链接',
   1090519089: '文件',
 }
-export default msgTypes;
+export default msgTypes

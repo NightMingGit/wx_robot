@@ -4,18 +4,18 @@
     "jsx": "preserve",
     "lib": ["ESNext", "DOM"],
     "useDefineForClassFields": true,
+    "baseUrl": "./src",
     "module": "ESNext",
     "moduleResolution": "Node",
+    "paths": {
+      "@server/*": ["server/*"]
+    },
     "resolveJsonModule": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
-    "baseUrl": "./src",
-    "paths": {
-       "@server/*": ["server/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
 }

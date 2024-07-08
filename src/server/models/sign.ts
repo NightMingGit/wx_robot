@@ -17,12 +17,11 @@ const model = sequelize.define('sign', {
     allowNull: false,
   },
   date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATEONLY,
     allowNull: false,
   },
 }, {
   timestamps: false,
 })
-
 
 export default model

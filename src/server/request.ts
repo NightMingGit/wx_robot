@@ -7,7 +7,8 @@ function createService() {
       'Content-Type': 'application/json',
     },
     timeout: 5000000,
-    baseURL: 'http://192.168.3.19:10010',
+    // baseURL: 'http://192.168.3.19:10010',
+    baseURL: 'http://127.0.0.1:10010',
   })
   service.interceptors.request.use(
     (config) => {

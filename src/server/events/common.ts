@@ -3,6 +3,7 @@ import { sql } from '@server/api/system'
 import { parseProtobuf } from '@server/utils/utils'
 import { createUser, getUserInfo, updateUser } from '@server/services/user'
 
+// 获取群成员
 async function getGroupMembers(roomId: string): Promise<member[]> {
   const contacts = await sql('MicroMsg.db', 'SELECT UserName, NickName FROM Contact;')
   const wxRoomData = await sql('MicroMsg.db', `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomId}'`)

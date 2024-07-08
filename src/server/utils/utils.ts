@@ -3,6 +3,11 @@ import { dirname, join } from 'node:path'
 import { Buffer } from 'node:buffer'
 import protobuf from 'protobufjs'
 import logger from '@server/logger'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import config from '@server/config'
+
+dayjs.locale('zh-cn')
 
 export async function parseProtobuf(wxRoomData: string) {
   try {
@@ -31,4 +36,26 @@ export async function parseProtobuf(wxRoomData: string) {
     logger.error(`Error parsing protobuf: ${err}`)
     throw err
   }
+}
+
+// 返回今日日期，格式为 YYYY-MM-DD 用dayjs
+export function getTodayDate() {
+  return dayjs().format('YYYY-MM-DD')
+}
+
+// 取本周一至周日日期，格式为 YYYY-MM-DD 用dayjs
+export function getWeekDate() {
+  const start = dayjs().startOf('week').format('YYYY-MM-DD')
+  const end = dayjs().endOf('week').format('YYYY-MM-DD')
+  return { start, end }
+}
+// 取本月第一天至最后一天日期，格式为 YYYY-MM-DD 用dayjs
+export function getMonthDate() {
+  const start = dayjs().startOf('month').format('YYYY-MM-DD')
+  const end = dayjs().endOf('month').format('YYYY-MM-DD')
+  return { start, end }
+}
+// 判断是否管理员
+export function isAdmin(userId: string) {
+  return config.adminUser.includes(userId)
 }

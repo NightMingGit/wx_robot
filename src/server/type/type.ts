@@ -2,7 +2,7 @@ export interface event {
   type: number
   keys: string[]
   is_group: boolean
-  handle: (data: any) => void
+  handle: (data: msg) => void
 }
 
 export interface msg {
@@ -19,6 +19,7 @@ export interface msg {
   extra?: string
   xml: string
   from_id: string
+  userInfo?: object | null
 }
 export interface member {
   user_id: string
