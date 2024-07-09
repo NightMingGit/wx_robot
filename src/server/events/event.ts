@@ -28,6 +28,7 @@ async function triggerEvent(data: msg) {
   data.from_id = data.is_group ? data.roomid : data.sender
   // 设置一个全局数据 可能给别的地方使用
   setData(data)
+
   // 如果是群里把user信息挂载到data上
   await mountUserInfo(data)
   // 新人进群

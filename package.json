@@ -8,7 +8,8 @@
     "start": "NODE_ENV=production tsx src/server/main.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "pnpm lint:fix && vite build"
+    "build": "pnpm lint:fix && vite build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@types/node-cron": "^3.0.11",
@@ -40,14 +41,8 @@
     "vue-tsc": "^1.8.22"
   },
   "lint-staged": {
-    "*.{js,ts}": [
-      "eslint --fix",
-      "git add"
+    "src/**/*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
   }
 }
