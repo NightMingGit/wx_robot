@@ -1,7 +1,7 @@
 import { handles } from '@server/events/handles'
 import { isGroupActive, joinGroup, mountUserInfo, switchGroup } from '@server/events/common'
 import { setData } from '@server/global'
-import type { event } from '../type/type'
+import type { event, msg } from '../type/type'
 
 const events: event[] = [
   ...handles,
@@ -19,7 +19,7 @@ function matches(event: event, content: string): boolean {
   return false
 }
 
-async function triggerEvent(data: string) {
+async function triggerEvent(data: msg) {
   // 处理开关群事件
   await switchGroup(data)
   // 判断是否开启了群聊
