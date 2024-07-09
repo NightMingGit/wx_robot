@@ -49,12 +49,14 @@ export function getWeekDate() {
   const end = dayjs().endOf('week').format('YYYY-MM-DD')
   return { start, end }
 }
+
 // 取本月第一天至最后一天日期，格式为 YYYY-MM-DD 用dayjs
 export function getMonthDate() {
   const start = dayjs().startOf('month').format('YYYY-MM-DD')
   const end = dayjs().endOf('month').format('YYYY-MM-DD')
   return { start, end }
 }
+
 // 判断是否管理员
 export function isAdmin(userId: string) {
   return config.adminUser.includes(userId)

@@ -1,7 +1,9 @@
 import type { contact, member, msg } from '@server/type/type'
-import { sql } from '@server/api/system'
-import { parseProtobuf } from '@server/utils/utils'
+import { sendText, sql } from '@server/api/system'
+import { isAdmin, parseProtobuf } from '@server/utils/utils'
 import { createUser, getUserInfo, updateUser } from '@server/services/user'
+import { getActiveGroupIds, setActiveGroupIds } from '@server/global'
+import { createActiveGroup, getActiveGroup, setActiveGroup } from '@server/services/activeGroup'
 
 // 获取群成员
 async function getGroupMembers(roomId: string): Promise<member[]> {
@@ -47,5 +49,55 @@ export function joinGroup(data: msg) {
     setTimeout(() => {
       syncGroups(data)
     }, 5000)
+  }
+}
+// 开关群
+export async function switchGroup(data: msg) {
+  const activeIds = getActiveGroupIds()
+  if (data.is_group) {
+    if (isAdmin(data.sender)) {
+      if (data.content === '开启群聊') {
+        // 判断当前群如果不在activeIds里面 执行开启操作
+        if (!activeIds.includes(data.roomid)) {
+          activeIds.push(data.roomid)
+          await setActiveGroup(JSON.stringify(activeIds))
+          setActiveGroupIds(activeIds)
+          await sendText('已开启群聊', data.roomid)
+        }
+      }
+      if (data.content === '关闭群聊') {
+        if (activeIds.includes(data.roomid)) {
+          activeIds.splice(activeIds.indexOf(data.roomid), 1)
+          await setActiveGroup(JSON.stringify(activeIds))
+          setActiveGroupIds(activeIds)
+          await sendText('已关闭群聊', data.roomid)
+        }
+      }
+    }
+  }
+}
+// 判断是否开启了群聊
+export function isGroupActive(roomId: string) {
+  const activeIds = getActiveGroupIds()
+  console.log('当前已激活群聊', activeIds)
+  return activeIds.includes(roomId)
+}
+// 挂载userInfo
+export async function mountUserInfo(data: msg) {
+  if (data.is_group && !data.userInfo) {
+    const user = await getUserInfo(data.sender, data.roomid)
+    data.userInfo = user?.toJSON()
+  }
+}
+// 初始化群聊ids
+export async function initGroupIds() {
+  // 获取已经激活的群聊 并存入内存
+  const g = await getActiveGroup()
+  if (!g) {
+    await createActiveGroup()
+    setActiveGroupIds([])
+  }
+  else {
+    setActiveGroupIds(JSON.parse((g as any).ids))
   }
 }

@@ -1,6 +1,5 @@
 import { handles } from '@server/events/handles'
-import { joinGroup } from '@server/events/common'
-import { getUserInfo } from '@server/services/user'
+import { isGroupActive, joinGroup, mountUserInfo, switchGroup } from '@server/events/common'
 import { setData } from '@server/global'
 import type { event, msg } from '../type/type'
 
@@ -21,14 +20,16 @@ function matches(event: event, content: string): boolean {
 }
 
 async function triggerEvent(data: msg) {
+  // 处理开关群事件
+  await switchGroup(data)
+  // 判断是否开启了群聊
+  if (!isGroupActive(data.roomid))
+    return
+  data.from_id = data.is_group ? data.roomid : data.sender
   // 设置一个全局数据 可能给别的地方使用
   setData(data)
-  data.from_id = data.is_group ? data.roomid : data.sender
   // 如果是群里把user信息挂载到data上
-  if (data.is_group && !data.userInfo) {
-    const user = await getUserInfo(data.sender, data.roomid)
-    data.userInfo = user?.toJSON()
-  }
+  await mountUserInfo(data)
   // 新人进群
   joinGroup(data)
   // todo 消息计数
