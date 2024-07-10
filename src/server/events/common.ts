@@ -4,9 +4,11 @@ import { isAdmin, parseProtobuf } from '@server/utils/utils'
 import { createUser, getUserInfo, updateUser } from '@server/services/user'
 import { getActiveGroupIds, setActiveGroupIds } from '@server/global'
 import { createActiveGroup, getActiveGroup, setActiveGroup } from '@server/services/activeGroup'
+import { allowMsgTypes } from '@server/type/msgTypes'
+import { addMessage } from '@server/services/message'
 
 // 获取群成员
-async function getGroupMembers(roomId: string): Promise<member[]> {
+export async function getGroupMembers(roomId: string): Promise<member[]> {
   const contacts = await sql('MicroMsg.db', 'SELECT UserName, NickName FROM Contact;')
   const wxRoomData = await sql('MicroMsg.db', `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomId}'`)
   const data = await parseProtobuf(wxRoomData.data[0].RoomData)
@@ -98,5 +100,11 @@ export async function initGroupIds() {
   }
   else {
     setActiveGroupIds(JSON.parse((g as any).ids))
+  }
+}
+// 消息计数
+export function msgCount(data: msg) {
+  if (data.is_group && allowMsgTypes.includes(data.type)) {
+    addMessage(data.sender, data.roomid)
   }
 }

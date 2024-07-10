@@ -1,6 +1,7 @@
 import { handles } from '@server/events/handles'
-import { isGroupActive, joinGroup, mountUserInfo, switchGroup } from '@server/events/common'
+import { isGroupActive, joinGroup, mountUserInfo, msgCount, switchGroup } from '@server/events/common'
 import { setData } from '@server/global'
+import { allowRespTypes } from '@server/type/msgTypes'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [
@@ -28,18 +29,19 @@ async function triggerEvent(data: msg) {
   data.from_id = data.is_group ? data.roomid : data.sender
   // 设置一个全局数据 可能给别的地方使用
   setData(data)
-
   // 如果是群里把user信息挂载到data上
   await mountUserInfo(data)
   // 新人进群
   joinGroup(data)
   // todo 消息计数
+  msgCount(data)
   // todo @机器人 gpt
   for (const event of events) {
     if (event.is_group === data.is_group || !event.is_group) {
       if (matches(event, data.content!)) {
-        event.handle(data)
-        return
+        if (allowRespTypes.includes(data.type)) {
+          event.handle(data)
+        }
       }
     }
   }

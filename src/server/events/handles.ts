@@ -4,6 +4,7 @@ import { sendText } from '@server/api/system'
 import { syncGroups } from '@server/events/common'
 import { isAdmin } from '@server/utils/utils'
 import config from '@server/config'
+import { updateScore } from '@server/services/user'
 
 export const handles = [
   {
@@ -48,6 +49,7 @@ async function signFunction(data: msg) {
   }
   else {
     await sign(data.sender, data.roomid)
-    return '打卡成功'
+    await updateScore(data.sender, data.roomid, config.signScore)
+    return `打卡成功,获得${config.signScore}金币`
   }
 }

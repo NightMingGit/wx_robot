@@ -33,4 +33,10 @@ const msgTypes = {
   1040187441: '音乐链接',
   1090519089: '文件',
 }
+
+// 允许触发计数的类型
+export const allowMsgTypes = [1, 3, 34, 43, 62]
+// 允许响应的类型
+export const allowRespTypes = [1]
+
 export default msgTypes

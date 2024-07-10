@@ -19,3 +19,12 @@ export async function sign(user_id: string, group_id: string) {
     date: getTodayDate(),
   })
 }
+// 删除打卡数据
+export async function delSign(user_id: string, group_id: string) {
+  return await user.destroy({
+    where: {
+      user_id,
+      group_id,
+    },
+  })
+}
