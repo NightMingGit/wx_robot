@@ -79,7 +79,6 @@ export async function switchGroup(data: msg) {
 // 判断是否开启了群聊
 export function isGroupActive(roomId: string) {
   const activeIds = getActiveGroupIds()
-  console.log('当前已激活群聊', activeIds)
   return activeIds.includes(roomId)
 }
 // 挂载userInfo
