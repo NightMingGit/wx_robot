@@ -6,6 +6,7 @@ import logger from '@server/logger'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import config from '@server/config'
+import type { diffUser } from '@server/type/type'
 
 dayjs.locale('zh-cn')
 
@@ -60,4 +61,31 @@ export function getMonthDate() {
 // 判断是否管理员
 export function isAdmin(userId: string) {
   return config.adminUser.includes(userId)
+}
+
+export function findDifferences(arr1: diffUser[], arr2: diffUser[]) {
+  const mapArr1 = new Map(arr1.map(item => [item.user_id + item.group_id, item]))
+  const uniqueInArr2: any[] = []
+  const changedNames: { from: diffUser, to: diffUser }[] = []
+
+  arr2.forEach((item2) => {
+    const key = item2.user_id + item2.group_id
+    const item1 = mapArr1.get(key)
+    if (item1) {
+      // 检查名字是否有变化
+      if (item1.name !== item2.name) {
+        changedNames.push({ from: item2, to: item1 })
+      }
+      mapArr1.delete(key)
+    }
+    else {
+      // 在arr2中但不在arr1中
+      uniqueInArr2.push(item2)
+    }
+  })
+
+  return {
+    changedNames,
+    uniqueInArr2,
+  }
 }

@@ -1,16 +1,18 @@
 import cron from 'node-cron'
 import { getActiveGroupIds } from '@server/global'
 import { getGroupMembers } from '@server/events/common'
-import { getGroupUsers } from '@server/services/user'
+import { deleteUser, getGroupUsers, updateUser } from '@server/services/user'
+import { findDifferences } from '@server/utils/utils'
+import { sendText } from '@server/api/system'
+import { delSign } from '@server/services/sign'
+import { deleteMessage } from '@server/services/message'
 
 cron.schedule('*/10 * * * * *', () => {
-  console.log('这个任务每10秒执行一次')
   checkGroupAndRename()
 })
 
 // 退群和改名检测
 async function checkGroupAndRename() {
-  console.log('退群和改名检测')
   // 只对已经激活的群 做检测
   const activeGroupList = getActiveGroupIds()
   for (const group of activeGroupList) {
@@ -30,12 +32,20 @@ async function checkGroupAndRename() {
         group_id: item.group_id,
       }
     })
-    console.log(wxData, data)
-    // 改名检测
-
-    // 退群检测 退群的需要删除签到 摸鱼 和用户
-    // await delSign()
-    // await deleteMessage()
-    // await deleteUser()
+    if (wxData && wxData.length > 0) {
+      const { changedNames, uniqueInArr2 } = findDifferences(wxData, data)
+      // 改名提示
+      for (const item of changedNames) {
+        await sendText(`[ ${item.from.name} ]改名为[ ${item.to.name} ]`, group)
+        await updateUser(item.to.user_id, item.to.group_id, item.to.name)
+      }
+      // 退群提示
+      for (const item of uniqueInArr2) {
+        await sendText(`[ ${item.name} ]退群`, group)
+        await delSign(item.user_id, group)
+        await deleteUser(item.user_id, group)
+        await deleteMessage(item.user_id, group)
+      }
+    }
   }
 }

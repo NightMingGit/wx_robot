@@ -6,12 +6,10 @@ import '@server/models/index'
 import '@server/job/index'
 import { triggerEvent } from '@server/events/event'
 import type { msg } from '@server/type/type'
-import { initGroupIds } from '@server/events/common'
 
 const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-await initGroupIds()
 app.post('/robot', (req, res) => {
   triggerEvent(req.body as msg)
   res.send({

@@ -7,6 +7,12 @@ interface user {
   card: number
 }
 
+export interface diffUser {
+  name: string
+  user_id: string
+  group_id: string
+}
+
 export interface event {
   type: number
   keys: string[]
