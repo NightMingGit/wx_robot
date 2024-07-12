@@ -27,7 +27,13 @@ const model = sequelize.define('prize', {
   probability: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 100,
+  },
+  // 获得的类型 0打卡抽奖 1随机宝箱
+  getType: {
+    type: DataTypes.ENUM,
+    allowNull: false,
+    values: ['0', '1'],
+    comment: '0打卡抽奖 1随机宝箱',
   },
 }, {
   timestamps: false,

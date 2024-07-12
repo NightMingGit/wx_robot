@@ -1,7 +1,7 @@
-import type { contact, member, msg } from '@server/type/type'
+import type { contact, member, msg, prize } from '@server/type/type'
 import { sendText, sql } from '@server/api/system'
 import { isAdmin, parseProtobuf } from '@server/utils/utils'
-import { createUser, getUserInfo, updateUser } from '@server/services/user'
+import { createUser, getUserInfo, updateScore, updateUser } from '@server/services/user'
 import { getActiveGroupIds, setActiveGroupIds } from '@server/global'
 import { createActiveGroup, getActiveGroup, setActiveGroup } from '@server/services/activeGroup'
 import { allowMsgTypes } from '@server/type/msgTypes'
@@ -103,8 +103,28 @@ export async function initGroupIds() {
   }
 }
 // 消息计数
-export function msgCount(data: msg) {
+export async function msgCount(data: msg) {
   if (data.is_group && allowMsgTypes.includes(data.type)) {
-    addMessage(data.sender, data.roomid)
+    await addMessage(data.sender, data.roomid)
+    await updateScore(data.sender, data.roomid, 1)
   }
+}
+// 抽奖
+export function drawPrize(prizes: prize[]): prize | null {
+  let totalProbability = 0
+  prizes.forEach((prize) => {
+    totalProbability += prize.probability
+  })
+
+  const randomPoint = Math.random() * totalProbability
+  let currentPoint = 0
+
+  for (const prize of prizes) {
+    currentPoint += prize.probability
+    if (randomPoint < currentPoint) {
+      return prize
+    }
+  }
+
+  return null // 如果没有合适的奖项，返回null
 }

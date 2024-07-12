@@ -1,4 +1,4 @@
-import { post } from '@server/request'
+import { get, post } from '@server/request'
 
 export function sendText(msg: string, receiver: string, aters: string = '') {
   return post('/text', {
@@ -12,4 +12,11 @@ export function sql(db: string, sql: string) {
     db,
     sql,
   })
+}
+// 机器人信息
+export function userinfo() {
+  return get('/userinfo', {})
+}
+export function test() {
+  return get('/test', {})
 }

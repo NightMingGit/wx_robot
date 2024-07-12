@@ -16,8 +16,10 @@ export interface diffUser {
 export interface event {
   type: number
   keys: string[]
-  is_group: boolean
-  handle: (data: msg) => void
+  is_group?: boolean
+  isAdmin?: boolean
+  score?: number
+  handle: (data: msg) => Promise<any>
 }
 
 export interface msg {
@@ -43,4 +45,12 @@ export interface member {
 export interface contact {
   UserName: string
   NickName: string
+}
+export interface prize {
+  id: number
+  name: string
+  type: string
+  value?: number
+  probability: number
+  getType: string
 }
