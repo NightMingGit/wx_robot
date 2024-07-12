@@ -58,6 +58,11 @@ export function getMonthDate() {
   return { start, end }
 }
 
+// 取本周是第几天
+export function getWeekDay() {
+  return dayjs().day()
+}
+
 // 判断是否管理员
 export function isAdmin(userId: string) {
   return config.adminUser.includes(userId)

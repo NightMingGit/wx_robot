@@ -38,15 +38,14 @@ async function triggerEvent(data: msg) {
   data.from_id = data.is_group ? data.roomid : data.sender
   // 设置一个全局数据 可能给别的地方使用
   setData(data)
-  // 如果是群里把user信息挂载到data上
-  await mountUserInfo(data)
   // 新人进群
   joinGroup(data)
   // 消息计数
-  msgCount(data)
+  await msgCount(data)
   // todo @机器人 gpt
   useGpt(data)
-
+  // 如果是群里把user信息挂载到data上
+  await mountUserInfo(data)
   for (const event of events) {
     // 检查事件是否适用于当前消息类型
     if (!(event.is_group === data.is_group || !event.is_group)) {
@@ -72,7 +71,7 @@ async function triggerEvent(data: msg) {
     // 判断是否需要扣金币
     if (event.score) {
       if (!data.userInfo) {
-        await sendText('数据错误', data.from_id)
+        await sendText('暂未找到该用户', data.from_id)
         continue
       }
 

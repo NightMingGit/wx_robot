@@ -107,7 +107,7 @@ export function isGroupActive(roomId: string) {
 export async function mountUserInfo(data: msg) {
   if (data.is_group && !data.userInfo) {
     const user = await getUserInfo(data.sender, data.roomid)
-    data.userInfo = user?.toJSON()
+    data.userInfo = user || null
   }
 }
 // 初始化群聊ids
@@ -165,7 +165,7 @@ export async function useGpt(data: msg) {
   // 取出提问的内容
   const content = data.content.replace(/@\S+\s*/g, '').trim()
   console.log('content==> ', content)
-  useChatBot(content, data)
+  await useChatBot(content, data)
 }
 
 function isAtBot(data: msg) {

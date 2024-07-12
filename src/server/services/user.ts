@@ -9,12 +9,13 @@ export async function getGroupUsers(group_id: string) {
   })
 }
 
-export async function getUserInfo(user_id: string, group_id: string) {
+export async function getUserInfo(user_id: string, group_id: string): Promise<any> {
   return await user.findOne({
     where: {
       user_id,
       group_id,
     },
+    raw: true,
   })
 }
 
@@ -63,4 +64,18 @@ export async function deleteUser(user_id: string, group_id: string) {
       group_id,
     },
   })
+}
+// card字段+1
+export async function updateCard(user_id: string, group_id: string) {
+  return await user.update(
+    {
+      card: Sequelize.literal(`card + 1`),
+    },
+    {
+      where: {
+        user_id,
+        group_id,
+      },
+    },
+  )
 }
