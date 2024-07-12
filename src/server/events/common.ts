@@ -3,20 +3,34 @@ import { sendText, sql } from '@server/api/system'
 import { isAdmin, parseProtobuf } from '@server/utils/utils'
 import { createUser, getUserInfo, updateUser } from '@server/services/user'
 import { getActiveGroupIds, setActiveGroupIds } from '@server/global'
-import { createActiveGroup, getActiveGroup, setActiveGroup } from '@server/services/activeGroup'
+import {
+  createActiveGroup,
+  getActiveGroup,
+  setActiveGroup,
+} from '@server/services/activeGroup'
 import { allowMsgTypes } from '@server/type/msgTypes'
 import { addMessage } from '@server/services/message'
+import { chatBot } from '@server/api/chat'
 
 // 获取群成员
 export async function getGroupMembers(roomId: string): Promise<member[]> {
-  const contacts = await sql('MicroMsg.db', 'SELECT UserName, NickName FROM Contact;')
-  const wxRoomData = await sql('MicroMsg.db', `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomId}'`)
+  const contacts = await sql(
+    'MicroMsg.db',
+    'SELECT UserName, NickName FROM Contact;',
+  )
+  const wxRoomData = await sql(
+    'MicroMsg.db',
+    `SELECT RoomData FROM ChatRoom WHERE ChatRoomName = '${roomId}'`,
+  )
   const data = await parseProtobuf(wxRoomData.data[0].RoomData)
   const members: member[] = []
   for (const item of data.members) {
     members.push({
       user_id: item.wxid,
-      name: item.name ? item.name : contacts.data.find((v: contact) => v.UserName === item.wxid)?.NickName,
+      name: item.name
+        ? item.name
+        : contacts.data.find((v: contact) => v.UserName === item.wxid)
+          ?.NickName,
     })
   }
   return members
@@ -106,5 +120,32 @@ export async function initGroupIds() {
 export function msgCount(data: msg) {
   if (data.is_group && allowMsgTypes.includes(data.type)) {
     addMessage(data.sender, data.roomid)
+  }
+}
+
+export function useGpt(data: msg) {
+  // 1.判断是否艾特机器人
+  if (!isAtBot(data))
+    return
+  // 取出提问的内容
+  console.log(data)
+  const content = data.content.replace(/@\S+\s*/g, '').trim()
+  console.log('content==> ', content)
+  useChatBot(content)
+}
+
+function isAtBot(data: msg) {
+  // regex是机器人Id
+  const regex = /wxid_wjyau65xkpmi22/
+  return regex.test(data.xml)
+}
+
+async function useChatBot(content: string) {
+  try {
+    const res = await chatBot(content)
+    console.log('输出结果', res)
+  }
+  catch (err) {
+    console.log(err)
   }
 }

@@ -14,6 +14,7 @@ function createService() {
   })
   service.interceptors.request.use(
     (config) => {
+      // console.log("config==>", config);
       return config
     },
     (error) => {
@@ -60,7 +61,14 @@ async function get(url: string, params: any): Promise<any> {
 
 function sendError(url: string) {
   // 机器人自身接口不使用 防止无限循环
-  const whiteList = ['/text', '/sql', '/delete-chatroom-member', '/file', '/image', '/rich-text']
+  const whiteList = [
+    '/text',
+    '/sql',
+    '/delete-chatroom-member',
+    '/file',
+    '/image',
+    '/rich-text',
+  ]
   if (whiteList.includes(url))
     return
   const data = getData()

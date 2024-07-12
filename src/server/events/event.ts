@@ -1,12 +1,17 @@
 import { handles } from '@server/events/handles'
-import { isGroupActive, joinGroup, mountUserInfo, msgCount, switchGroup } from '@server/events/common'
+import {
+  isGroupActive,
+  joinGroup,
+  mountUserInfo,
+  msgCount,
+  switchGroup,
+  useGpt,
+} from '@server/events/common'
 import { setData } from '@server/global'
 import { allowRespTypes } from '@server/type/msgTypes'
 import type { event, msg } from '../type/type'
 
-const events: event[] = [
-  ...handles,
-]
+const events: event[] = [...handles]
 
 function matches(event: event, content: string): boolean {
   if (event.type === 0) {
@@ -36,6 +41,8 @@ async function triggerEvent(data: msg) {
   // todo 消息计数
   msgCount(data)
   // todo @机器人 gpt
+  useGpt(data)
+
   for (const event of events) {
     if (event.is_group === data.is_group || !event.is_group) {
       if (matches(event, data.content!)) {
@@ -47,6 +54,4 @@ async function triggerEvent(data: msg) {
   }
 }
 
-export {
-  triggerEvent,
-}
+export { triggerEvent }
