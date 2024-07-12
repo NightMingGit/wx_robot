@@ -43,7 +43,10 @@ export async function parseProtobuf(wxRoomData: string) {
 export function getTodayDate() {
   return dayjs().format('YYYY-MM-DD')
 }
-
+// 返回今日日期，格式为 YYYY-MM-DD hh:mm:ss
+export function getDateTime() {
+  return dayjs().format('YYYY-MM-DD HH:mm:ss')
+}
 // 取本周一至周日日期，格式为 YYYY-MM-DD 用dayjs
 export function getWeekDate() {
   const start = dayjs().startOf('week').format('YYYY-MM-DD')

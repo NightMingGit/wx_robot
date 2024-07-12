@@ -17,7 +17,7 @@ const model = sequelize.define('lottery_log', {
     allowNull: false,
   },
   date: {
-    type: DataTypes.DATEONLY,
+    type: DataTypes.DATE,
     allowNull: false,
   },
   prizeId: {

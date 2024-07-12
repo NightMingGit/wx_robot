@@ -22,7 +22,7 @@ export const handles: event[] = [
           user_id: item.user_id,
           count: Number(item.count),
         }
-      }).filter(item => item.count > getWeekDay() * 20)
+      }).filter(item => item.count > getWeekDay() * 5)
       if (messageList.length <= 0) {
         await sendText('暂无人满足条件', data.roomid)
       }
