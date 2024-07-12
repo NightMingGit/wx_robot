@@ -18,5 +18,5 @@ export function userinfo() {
   return get('/userinfo', {})
 }
 export function test() {
-  return get('/test', {})
+  return get('https://api.yujn.cn/api/kemu.php?type=json', {})
 }
