@@ -47,6 +47,12 @@ export function getTodayDate() {
 export function getDateTime() {
   return dayjs().format('YYYY-MM-DD HH:mm:ss')
 }
+// 返回今日0点和23:59:59
+export function getTodayStartEnd() {
+  const start = dayjs().startOf('day').format('YYYY-MM-DD HH:mm:ss')
+  const end = dayjs().endOf('day').format('YYYY-MM-DD HH:mm:ss')
+  return { start, end }
+}
 // 取本周一至周日日期，格式为 YYYY-MM-DD 用dayjs
 export function getWeekDate() {
   const start = dayjs().startOf('week').format('YYYY-MM-DD')
