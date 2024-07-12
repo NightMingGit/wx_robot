@@ -12,6 +12,7 @@ import { allowRespTypes } from '@server/type/msgTypes'
 import { isAdmin } from '@server/utils/utils'
 import { sendText } from '@server/api/system'
 import config from '@server/config'
+import { updateScore } from '@server/services/user'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [...handles]
@@ -47,20 +48,45 @@ async function triggerEvent(data: msg) {
   useGpt(data)
 
   for (const event of events) {
-    if (event.is_group === data.is_group || !event.is_group) {
-      if (matches(event, data.content!)) {
-        if (allowRespTypes.includes(data.type)) {
-          // 判断是不是需要管理员
-          if (event.isAdmin && !isAdmin(data.sender)) {
-            await sendText(config.adminText, data.from_id)
-          }
-          else {
-            event.handle(data).then((res) => {
-              console.log(res)
-            })
-          }
-        }
+    // 检查事件是否适用于当前消息类型
+    if (!(event.is_group === data.is_group || !event.is_group)) {
+      continue
+    }
+
+    // 检查内容是否匹配
+    if (!matches(event, data.content!)) {
+      continue
+    }
+
+    // 检查响应类型是否被允许
+    if (!allowRespTypes.includes(data.type)) {
+      continue
+    }
+
+    // 判断是否需要管理员权限
+    if (event.isAdmin && !isAdmin(data.sender)) {
+      await sendText(config.adminText, data.from_id)
+      continue
+    }
+
+    // 判断是否需要扣金币
+    if (event.score) {
+      if (!data.userInfo) {
+        await sendText('数据错误', data.from_id)
+        continue
       }
+
+      if (data.userInfo.score < event.score) {
+        await sendText('金币不足', data.from_id)
+        continue
+      }
+    }
+
+    // 处理事件
+    const result = await event.handle(data)
+    if (result && event.score) {
+      // 扣除金币
+      await updateScore(data.sender, data.from_id, -event.score)
     }
   }
 }

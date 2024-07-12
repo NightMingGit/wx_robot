@@ -10,12 +10,15 @@ export const handles: event[] = [
     type: 0,
     keys: ['测试'],
     is_group: true,
-    handle: async () => {
+    score: 100,
+    handle: async (data) => {
       try {
-        await test()
+        const res = await test()
+        console.log(res)
         return true
       }
       catch (e) {
+        await sendText('测试异常', data.roomid)
         return false
       }
     },
@@ -25,7 +28,7 @@ export const handles: event[] = [
     keys: ['同步'],
     is_group: true,
     isAdmin: true,
-    handle: async (data: msg) => {
+    handle: async (data) => {
       await syncGroups(data)
       await sendText('同步成功', data.from_id)
     },
@@ -34,7 +37,7 @@ export const handles: event[] = [
     type: 0,
     keys: ['我的信息'],
     is_group: true,
-    handle: async (data: msg) => {
+    handle: async (data) => {
       const signResult = await isSign(data.sender, data.roomid)
       const sendText_ = `昵称：${data.userInfo?.name}\n今日打卡：${signResult ? '是' : '否'}`
       await sendText(sendText_, data.from_id)
@@ -44,7 +47,7 @@ export const handles: event[] = [
     type: 0,
     keys: ['打卡', '签到'],
     is_group: true,
-    handle: async (data: msg) => {
+    handle: async (data) => {
       const signResult = await signFunction(data)
       await sendText(`打卡：${signResult}`, data.from_id)
     },
