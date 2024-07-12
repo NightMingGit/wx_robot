@@ -7,8 +7,8 @@ import { sendText } from '@server/api/system'
 import { delSign } from '@server/services/sign'
 import { deleteMessage } from '@server/services/message'
 
-cron.schedule('*/10 * * * * *', () => {
-  checkGroupAndRename()
+cron.schedule('*/10 * * * * *', async () => {
+  await checkGroupAndRename()
 })
 
 // 退群和改名检测
