@@ -1,24 +1,33 @@
-import type { msg } from '@server/type/type'
+import type { event, msg } from '@server/type/type'
 import { isSign, sign } from '@server/services/sign'
-import { sendText } from '@server/api/system'
+import { sendText, test } from '@server/api/system'
 import { syncGroups } from '@server/events/common'
-import { isAdmin } from '@server/utils/utils'
 import config from '@server/config'
 import { updateScore } from '@server/services/user'
 
-export const handles = [
+export const handles: event[] = [
+  {
+    type: 0,
+    keys: ['测试'],
+    is_group: true,
+    handle: async () => {
+      try {
+        await test()
+        return true
+      }
+      catch (e) {
+        return false
+      }
+    },
+  },
   {
     type: 0,
     keys: ['同步'],
     is_group: true,
+    isAdmin: true,
     handle: async (data: msg) => {
-      if (isAdmin(data.sender)) {
-        await syncGroups(data)
-        await sendText('同步成功', data.from_id)
-      }
-      else {
-        await sendText(config.adminText, data.from_id)
-      }
+      await syncGroups(data)
+      await sendText('同步成功', data.from_id)
     },
   },
   {
@@ -53,3 +62,8 @@ async function signFunction(data: msg) {
     return `打卡成功,获得${config.signScore}金币`
   }
 }
+// 抽奖
+// async function lotteryFunction(data: msg) {
+//   const p = (await getPrizeList(['0'])).map((item: any) => item.toJSON())
+//   console.log()
+// }

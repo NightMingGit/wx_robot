@@ -9,6 +9,9 @@ import {
 } from '@server/events/common'
 import { setData } from '@server/global'
 import { allowRespTypes } from '@server/type/msgTypes'
+import { isAdmin } from '@server/utils/utils'
+import { sendText } from '@server/api/system'
+import config from '@server/config'
 import type { event, msg } from '../type/type'
 
 const events: event[] = [...handles]
@@ -38,7 +41,7 @@ async function triggerEvent(data: msg) {
   await mountUserInfo(data)
   // 新人进群
   joinGroup(data)
-  // todo 消息计数
+  // 消息计数
   msgCount(data)
   // todo @机器人 gpt
   useGpt(data)
@@ -47,7 +50,15 @@ async function triggerEvent(data: msg) {
     if (event.is_group === data.is_group || !event.is_group) {
       if (matches(event, data.content!)) {
         if (allowRespTypes.includes(data.type)) {
-          event.handle(data)
+          // 判断是不是需要管理员
+          if (event.isAdmin && !isAdmin(data.sender)) {
+            await sendText(config.adminText, data.from_id)
+          }
+          else {
+            event.handle(data).then((res) => {
+              console.log(res)
+            })
+          }
         }
       }
     }
