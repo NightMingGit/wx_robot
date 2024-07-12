@@ -1,9 +1,10 @@
 import type { event, msg } from '@server/type/type'
 import { isSign, sign } from '@server/services/sign'
 import { sendText, test } from '@server/api/system'
-import { syncGroups } from '@server/events/common'
+import { drawPrize, syncGroups } from '@server/events/common'
 import config from '@server/config'
 import { updateScore } from '@server/services/user'
+import { getPrizeList } from '@server/services/prize'
 
 export const handles: event[] = [
   {
@@ -62,11 +63,15 @@ async function signFunction(data: msg) {
   else {
     await sign(data.sender, data.roomid)
     await updateScore(data.sender, data.roomid, config.signScore)
+    await lotteryFunction()
     return `打卡成功,获得${config.signScore}金币`
   }
 }
 // 抽奖
-// async function lotteryFunction(data: msg) {
-//   const p = (await getPrizeList(['0'])).map((item: any) => item.toJSON())
-//   console.log()
-// }
+async function lotteryFunction() {
+  const p = (await getPrizeList(['0'])).map((item: any) => item.toJSON())
+  const prize = drawPrize(p)
+  if (!prize)
+    return '抽奖失败'
+  console.log(prize)
+}

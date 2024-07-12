@@ -16,6 +16,7 @@ import {
 import { allowMsgTypes } from '@server/type/msgTypes'
 import { addMessage } from '@server/services/message'
 import { chatBot } from '@server/api/chat'
+import config from '@server/config'
 
 // 获取群成员
 export async function getGroupMembers(roomId: string): Promise<member[]> {
@@ -148,10 +149,19 @@ export function drawPrize(prizes: prize[]): prize | null {
   return null // 如果没有合适的奖项，返回null
 }
 
-export function useGpt(data: msg) {
+export async function useGpt(data: msg) {
   // 1.判断是否艾特机器人
   if (!isAtBot(data))
     return
+  if (!data.userInfo) {
+    await sendText('数据错误', data.from_id)
+    return
+  }
+
+  if (data.userInfo.score < config.gptScore) {
+    await sendText(`金币不足,提问需要${config.gptScore}金币`, data.from_id)
+    return
+  }
   // 取出提问的内容
   const content = data.content.replace(/@\S+\s*/g, '').trim()
   console.log('content==> ', content)
@@ -160,7 +170,7 @@ export function useGpt(data: msg) {
 
 function isAtBot(data: msg) {
   // regex是机器人Id
-  const regex = /wxid_wjyau65xkpmi22/
+  const regex = /wxid_6aauj504pgb922/
   return regex.test(data.xml)
 }
 

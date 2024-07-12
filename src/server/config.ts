@@ -8,5 +8,6 @@ const config = {
   ],
   adminText: '只有管理员才能使用此功能',
   signScore: 50,
+  gptScore: 50,
 }
 export default config
