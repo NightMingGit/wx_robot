@@ -103,7 +103,6 @@ export async function getTop10Card(group_id: string) {
       },
     },
     order: [['card', 'DESC']],
-    limit: 10,
     raw: true,
   })
 }
