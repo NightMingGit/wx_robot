@@ -6,7 +6,7 @@ import config from '@server/config'
 import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
 import { getPrizeList } from '@server/services/prize'
 import { createLotteryLog, getTodayLotteryLog } from '@server/services/lotteryLog'
-import { getRankByDateRange, getRankToday, getRankWeek } from '@server/services/message'
+import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
 import { getRandomElement, getWeekDay } from '@server/utils/utils'
 
 export const handles: event[] = [
@@ -58,7 +58,9 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const signResult = await isSign(data.sender, data.roomid)
-      const sendText_ = `[ ${data.userInfo.name} ]\n金币：${data.userInfo.score}\n崚影卡：${data.userInfo.card}\n今日打卡：${signResult ? '是' : '否'}`
+      const todayMessage: any = await getTodayCount(data.sender, data.roomid)
+      const weekMessage = await getWeekCount(data.sender, data.roomid)
+      const sendText_ = `[ ${data.userInfo.name} ]\n金币：${data.userInfo.score}\n崚影卡：${data.userInfo.card}\n今日打卡：${signResult ? '是' : '否'}\n今日摸鱼：${todayMessage.count}\n本周摸鱼：${weekMessage}`
       await sendText(sendText_, data.from_id)
     },
   },
@@ -136,12 +138,12 @@ async function signFunction(data: msg): Promise<string> {
 // 抽奖
 async function lotteryFunction(data: msg): Promise<string> {
   data.userInfo = await getUserInfo(data.sender, data.roomid)
-  if (data.userInfo.score < config.drawScore) {
-    return `金币不足${config.drawScore}`
-  }
   const isLottery = await getTodayLotteryLog(data.sender, data.roomid)
   if (isLottery) {
     return '今日已经抽过奖了'
+  }
+  if (data.userInfo.score < config.drawScore) {
+    return `金币不足${config.drawScore}`
   }
   const p = await getPrizeList(['0'])
   const prize = drawPrize(p)

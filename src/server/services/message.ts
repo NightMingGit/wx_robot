@@ -1,7 +1,7 @@
 import messageModel from '@server/models/message'
 import { getTodayDate, getWeekDate } from '@server/utils/utils'
 import sequelize from '@server/models/sequelize'
-import { QueryTypes } from 'sequelize'
+import { Op, QueryTypes } from 'sequelize'
 
 // 如果今天已经有数据了就加1 没有就默认新创建值为1
 export async function addMessage(user_id: string, group_id: string) {
@@ -97,5 +97,29 @@ export async function getRankWeek(group_id: string) {
   return await sequelize.query(query, {
     replacements: { start, end, group_id },
     type: QueryTypes.SELECT,
+  })
+}
+// 通过user_id和 group_id查询 今日count数
+export async function getTodayCount(user_id: string, group_id: string) {
+  return await messageModel.findOne({
+    where: {
+      user_id,
+      group_id,
+      date: getTodayDate(),
+    },
+    raw: true,
+  })
+}
+// 通过user_id和 group_id查询 和日期 查询本周count数
+export async function getWeekCount(user_id: string, group_id: string) {
+  const { start, end } = getWeekDate()
+  return await messageModel.sum('count', {
+    where: {
+      user_id,
+      group_id,
+      date: {
+        [Op.between]: [start, end],
+      },
+    },
   })
 }
