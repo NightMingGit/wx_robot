@@ -163,7 +163,7 @@ export async function useGpt(data: msg) {
 
 function isAtBot(data: msg) {
   // regex是机器人Id
-  const regex = /wxid_6aauj504pgb922/
+  const regex = /wxid_s3yfcz83hdk022/
   return regex.test(data.xml)
 }
 
@@ -171,9 +171,10 @@ async function useChatBot(content: string, data: msg) {
   try {
     const res = await chatBot(content)
     const answer = res.choices[0].message.content
+    await updateScore(data.sender, data.roomid, -config.gptScore)
     await sendText(answer, data.roomid)
   }
   catch (err) {
-    await sendText('输出失败', data.roomid)
+    await sendText('提问失败', data.roomid)
   }
 }
