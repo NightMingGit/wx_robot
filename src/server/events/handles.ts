@@ -80,7 +80,7 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getTop10Card(data.from_id)
-      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.score})`).join('\n')
+      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.card})`).join('\n')
       await sendText(rankText, data.from_id)
     },
   },
