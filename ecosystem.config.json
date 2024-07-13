@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "vite-vue-typescript-starter",
+      "script": "start.bat",
+      "watch": true
+    }
+  ]
+}

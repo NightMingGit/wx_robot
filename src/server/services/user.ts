@@ -1,5 +1,5 @@
 import user from '@server/models/user'
-import { Sequelize } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 
 export async function getGroupUsers(group_id: string) {
   return await user.findAll({
@@ -84,8 +84,25 @@ export async function getTop10(group_id: string) {
   return await user.findAll({
     where: {
       group_id,
+      score: {
+        [Op.gt]: 0,
+      },
     },
     order: [['score', 'DESC']],
+    limit: 10,
+    raw: true,
+  })
+}
+// card排行前10
+export async function getTop10Card(group_id: string) {
+  return await user.findAll({
+    where: {
+      group_id,
+      card: {
+        [Op.gt]: 0,
+      },
+    },
+    order: [['card', 'DESC']],
     limit: 10,
     raw: true,
   })

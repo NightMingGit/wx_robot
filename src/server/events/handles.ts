@@ -3,7 +3,7 @@ import { isSign, sign } from '@server/services/sign'
 import { sendText } from '@server/api/system'
 import { drawPrize, syncGroups } from '@server/events/common'
 import config from '@server/config'
-import { getTop10, getUserInfo, updateCard, updateScore } from '@server/services/user'
+import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
 import { getPrizeList } from '@server/services/prize'
 import { createLotteryLog, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { getRankByDateRange, getRankToday, getRankWeek } from '@server/services/message'
@@ -68,6 +68,16 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getTop10(data.from_id)
+      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.score})`).join('\n')
+      await sendText(rankText, data.from_id)
+    },
+  },
+  {
+    type: 0,
+    keys: ['崚影卡排行'],
+    is_group: true,
+    handle: async (data) => {
+      const result = await getTop10Card(data.from_id)
       const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.score})`).join('\n')
       await sendText(rankText, data.from_id)
     },
