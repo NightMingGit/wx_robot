@@ -103,3 +103,7 @@ export function findDifferences(arr1: diffUser[], arr2: diffUser[]) {
     uniqueInArr2,
   }
 }
+// 从数组中随机取一个元素
+export function getRandomElement<T>(array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)]
+}

@@ -18,7 +18,6 @@ export interface event {
   keys: string[]
   is_group?: boolean
   isAdmin?: boolean
-  score?: number
   handle: (data: msg) => Promise<any>
 }
 
@@ -36,7 +35,7 @@ export interface msg {
   extra?: string
   xml: string
   from_id: string
-  userInfo: user | null
+  userInfo: user
 }
 export interface member {
   user_id: string

@@ -39,7 +39,7 @@ export async function getRankByDateRange(group_id: string) {
     FROM 
       message m
     JOIN 
-      user u ON m.user_id = u.user_id
+      user u ON m.user_id = u.user_id AND m.group_id = u.group_id
     WHERE 
       m.date BETWEEN :start AND :end AND m.group_id = :group_id
     GROUP BY 
@@ -47,6 +47,53 @@ export async function getRankByDateRange(group_id: string) {
     ORDER BY 
       count DESC
   `
+  return await sequelize.query(query, {
+    replacements: { start, end, group_id },
+    type: QueryTypes.SELECT,
+  })
+}
+// 连user表查询今日count排名前10
+export async function getRankToday(group_id: string) {
+  const query = `
+      SELECT 
+        u.name,
+        u.user_id,
+        m.count
+      FROM 
+        message m
+      JOIN 
+        user u ON m.user_id = u.user_id AND m.group_id = u.group_id
+      WHERE 
+        m.date = :date AND m.group_id = :group_id
+      ORDER BY 
+        m.count DESC
+      LIMIT 10
+    `
+  return await sequelize.query(query, {
+    replacements: { date: getTodayDate(), group_id },
+    type: QueryTypes.SELECT,
+  })
+}
+// 连user表查询本周count排名前10
+export async function getRankWeek(group_id: string) {
+  const { start, end } = getWeekDate()
+  const query = `
+      SELECT 
+        u.name,
+        u.user_id,
+        SUM(m.count) as count
+      FROM 
+        message m
+      JOIN 
+        user u ON m.user_id = u.user_id AND m.group_id = u.group_id
+      WHERE 
+        m.date BETWEEN :start AND :end AND m.group_id = :group_id
+      GROUP BY 
+        u.user_id,u.name
+      ORDER BY 
+        count DESC
+      LIMIT 10
+    `
   return await sequelize.query(query, {
     replacements: { start, end, group_id },
     type: QueryTypes.SELECT,

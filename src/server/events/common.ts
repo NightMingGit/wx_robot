@@ -1,18 +1,9 @@
 import type { contact, member, msg, prize } from '@server/type/type'
 import { sendText, sql } from '@server/api/system'
 import { isAdmin, parseProtobuf } from '@server/utils/utils'
-import {
-  createUser,
-  getUserInfo,
-  updateScore,
-  updateUser,
-} from '@server/services/user'
+import { createUser, getUserInfo, updateScore, updateUser } from '@server/services/user'
 import { getActiveGroupIds, setActiveGroupIds } from '@server/global'
-import {
-  createActiveGroup,
-  getActiveGroup,
-  setActiveGroup,
-} from '@server/services/activeGroup'
+import { createActiveGroup, getActiveGroup, setActiveGroup } from '@server/services/activeGroup'
 import { allowMsgTypes } from '@server/type/msgTypes'
 import { addMessage } from '@server/services/message'
 import { chatBot } from '@server/api/chat'
@@ -59,6 +50,8 @@ export async function syncGroups(msg: msg) {
 
 // 进群处理
 export function joinGroup(data: msg) {
+  if (!data.is_group)
+    return
   // 如果是系统消息才处理
   if (data.type !== 10000)
     return false
@@ -69,32 +62,32 @@ export function joinGroup(data: msg) {
   if (joinPattern.test(data.content) || invitePattern.test(data.content)) {
     // 等待5s在处理
     setTimeout(() => {
-      syncGroups(data)
-    }, 5000)
+      syncGroups(data).then()
+    }, 10000)
   }
 }
 // 开关群
 export async function switchGroup(data: msg) {
   const activeIds = getActiveGroupIds()
-  if (data.is_group) {
-    if (isAdmin(data.sender)) {
-      if (data.content === '开启群聊') {
-        // 判断当前群如果不在activeIds里面 执行开启操作
-        if (!activeIds.includes(data.roomid)) {
-          activeIds.push(data.roomid)
-          await setActiveGroup(JSON.stringify(activeIds))
-          setActiveGroupIds(activeIds)
-          await sendText('已开启群聊', data.roomid)
-        }
-      }
-      if (data.content === '关闭群聊') {
-        if (activeIds.includes(data.roomid)) {
-          activeIds.splice(activeIds.indexOf(data.roomid), 1)
-          await setActiveGroup(JSON.stringify(activeIds))
-          setActiveGroupIds(activeIds)
-          await sendText('已关闭群聊', data.roomid)
-        }
-      }
+  if (!data.is_group)
+    return
+  if (!isAdmin(data.sender))
+    return
+  if (data.content === '开启群聊') {
+    // 判断当前群如果不在activeIds里面 执行开启操作
+    if (!activeIds.includes(data.roomid)) {
+      activeIds.push(data.roomid)
+      await setActiveGroup(JSON.stringify(activeIds))
+      setActiveGroupIds(activeIds)
+      await sendText('已开启群聊', data.roomid)
+    }
+  }
+  if (data.content === '关闭群聊') {
+    if (activeIds.includes(data.roomid)) {
+      activeIds.splice(activeIds.indexOf(data.roomid), 1)
+      await setActiveGroup(JSON.stringify(activeIds))
+      setActiveGroupIds(activeIds)
+      await sendText('已关闭群聊', data.roomid)
     }
   }
 }
@@ -106,8 +99,7 @@ export function isGroupActive(roomId: string) {
 // 挂载userInfo
 export async function mountUserInfo(data: msg) {
   if (data.is_group && !data.userInfo) {
-    const user = await getUserInfo(data.sender, data.roomid)
-    data.userInfo = user || null
+    data.userInfo = await getUserInfo(data.sender, data.roomid)
   }
 }
 // 初始化群聊ids
@@ -150,6 +142,8 @@ export function drawPrize(prizes: prize[]): prize | null {
 }
 
 export async function useGpt(data: msg) {
+  if (!data.is_group)
+    return
   // 1.判断是否艾特机器人
   if (!isAtBot(data))
     return
@@ -164,7 +158,6 @@ export async function useGpt(data: msg) {
   }
   // 取出提问的内容
   const content = data.content.replace(/@\S+\s*/g, '').trim()
-  console.log('content==> ', content)
   await useChatBot(content, data)
 }
 

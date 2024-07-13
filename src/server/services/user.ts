@@ -79,3 +79,14 @@ export async function updateCard(user_id: string, group_id: string) {
     },
   )
 }
+// score排行前10
+export async function getTop10(group_id: string) {
+  return await user.findAll({
+    where: {
+      group_id,
+    },
+    order: [['score', 'DESC']],
+    limit: 10,
+    raw: true,
+  })
+}
