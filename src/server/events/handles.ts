@@ -8,7 +8,6 @@ import { getPrizeList } from '@server/services/prize'
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
 import { getRandomElement, getWeekDay } from '@server/utils/utils'
-import { createLottery, getLottery } from '@server/services/lottery'
 
 export const handles: event[] = [
   {
@@ -123,35 +122,6 @@ export const handles: event[] = [
       const signResult = await signFunction(data)
       const lotteryResult = await lotteryFunction(data)
       await sendText(`@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}`, data.from_id)
-    },
-  },
-  {
-    type: 1,
-    keys: ['发起抽奖#'],
-    is_group: true,
-    handle: async (data) => {
-      // 格式 发起抽奖#奖品内容#人数
-      // 检查格式是否正确 人数只能是整数
-      const reg = /^发起抽奖#.+?#\d+$/
-
-      if (!reg.test(data.content)) {
-        await sendText('格式错误，正确格式：发起抽奖#奖品内容#人数', data.from_id)
-        return
-      }
-      // 人数最大10人 最小1人
-      const num = Number.parseInt(data.content.split('#')[2])
-      if (num > 10 || num < 1) {
-        await sendText('人数不能超过10人,不能小于1人', data.from_id)
-        return
-      }
-      // 判断当前是否已经有抽奖
-      const lottery = await getLottery()
-      if (lottery) {
-        await sendText('当前已经有抽奖了', data.from_id)
-        return
-      }
-      // 发起抽奖
-      await createLottery(data.content.split('#')[1], num, JSON.stringify([]))
     },
   },
   {
