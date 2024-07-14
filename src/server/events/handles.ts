@@ -8,6 +8,7 @@ import { getPrizeList } from '@server/services/prize'
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
 import { getRandomElement, getWeekDay } from '@server/utils/utils'
+import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 
 export const handles: event[] = [
   {
@@ -122,6 +123,98 @@ export const handles: event[] = [
       const signResult = await signFunction(data)
       const lotteryResult = await lotteryFunction(data)
       await sendText(`@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}`, data.from_id)
+    },
+  },
+  {
+    type: 1,
+    keys: ['发起抽奖#'],
+    is_group: true,
+    handle: async (data) => {
+      // 格式 发起抽奖#奖品内容#人数
+      // 检查格式是否正确 人数只能是整数
+      const reg = /^发起抽奖#.+?#\d+$/
+
+      if (!reg.test(data.content)) {
+        await sendText('格式错误，正确格式：发起抽奖#奖品内容#人数', data.from_id)
+        return
+      }
+      // 人数最大10人 最小1人
+      const num = Number.parseInt(data.content.split('#')[2])
+      if (num > 10 || num < 1) {
+        await sendText('人数不能超过10人,不能小于1人', data.from_id)
+        return
+      }
+      // 判断当前是否已经有抽奖
+      const lottery = await getLottery()
+      if (lottery) {
+        await sendText('当前已经有抽奖了', data.from_id)
+        return
+      }
+      // 发起抽奖
+      await createLottery(data.sender, data.content.split('#')[1], num, JSON.stringify([]))
+      const text = `@所有人 抽奖开始咯\n奖品：${data.content.split('#')[1]}\n人数：${num}\n参与方式：发送“加入抽奖”`
+      await sendText(text, data.from_id, 'notify@all')
+    },
+  },
+  {
+    type: 0,
+    keys: ['加入抽奖'],
+    handle: async (data) => {
+      // 判断当前是否有抽奖
+      const lottery: any = await getLottery()
+      if (!lottery) {
+        await sendText('当前没有抽奖', data.from_id)
+        return
+      }
+      // 判断金币是否够
+      if (data.userInfo.score < config.lotteryScore) {
+        await sendText(`@${data.userInfo.name} 金币不足，无法参与抽奖`, data.from_id)
+        return
+      }
+      const list = JSON.parse(lottery.list)
+
+      if (list.includes(data.sender)) {
+        return
+      }
+      list.push({
+        userId: data.sender,
+        name: data.userInfo.name,
+      })
+      await saveList(lottery.id, JSON.stringify(list))
+      await updateScore(data.sender, data.roomid, -config.lotteryScore)
+    },
+  },
+  {
+    type: 0,
+    keys: ['抽奖名单'],
+    handle: async (data) => {
+      const lottery: any = await getLottery()
+      if (!lottery) {
+        await sendText('当前没有抽奖', data.from_id)
+        return
+      }
+      if (data.sender !== lottery.user_id) {
+        return
+      }
+      const list = JSON.parse(lottery.list)
+      await sendText(`抽奖名单：${list.map((item: any) => item.name).join('，')}\n奖品：${lottery.name}\n抽取人数：${lottery.count}\n参与人数：${list.length}`, data.from_id)
+    },
+  },
+  {
+    type: 0,
+    keys: ['结束抽奖'],
+    handle: async (data) => {
+      const lottery: any = await getLottery()
+      if (!lottery) {
+        await sendText('当前没有抽奖', data.from_id)
+        return
+      }
+      if (data.sender !== lottery.user_id) {
+        await sendText('只有发起抽奖的人才能结束抽奖', data.from_id)
+        return
+      }
+      await endLottery(lottery.id)
+      await sendText('抽奖结束', data.from_id)
     },
   },
   {

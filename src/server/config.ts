@@ -10,5 +10,6 @@ const config = {
   signScore: 50,
   gptScore: 50,
   drawScore: 50,
+  lotteryScore: 100,
 }
 export default config

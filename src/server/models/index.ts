@@ -26,6 +26,7 @@ async function initPrizes() {
     { id: 4, name: '150金币', value: 150, type: '1', probability: 6, getType: '0' },
     { id: 5, name: '200金币', value: 200, type: '1', probability: 3, getType: '0' },
     { id: 6, name: '崚影卡', type: '3', probability: 5, getType: '1' },
+    { id: 7, name: '扣50金币', type: '4', value: 50, probability: 15, getType: '1' },
   ]
   await prizeModel.bulkCreate(prizes as any, {
     ignoreDuplicates: true,
