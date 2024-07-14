@@ -11,6 +11,8 @@ const sequelize = new Sequelize('robot_data', 'root', '123456', {
   },
   dialectOptions: {
     timezone: 'local',
+    dateStrings: true,
+    typeCast: true,
   },
   pool: {
     max: 5,

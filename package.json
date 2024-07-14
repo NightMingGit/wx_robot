@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "nodemon -w src/server -x tsx src/server/main.ts",
-    "start": "NODE_ENV=production tsx src/server/main.ts",
+    "dev": "set NODE_ENV=dev && nodemon -w src/server -x tsx src/server/main.ts",
+    "dev:prd": "set NODE_ENV=prd && nodemon -w src/server -x tsx src/server/main.ts",
+    "start": "set NODE_ENV=prd && tsx src/server/main.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "pnpm lint:fix && vite build",

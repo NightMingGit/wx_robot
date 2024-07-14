@@ -5,7 +5,7 @@ import { drawPrize, syncGroups } from '@server/events/common'
 import config from '@server/config'
 import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
 import { getPrizeList } from '@server/services/prize'
-import { createLotteryLog, getTodayLotteryLog } from '@server/services/lotteryLog'
+import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
 import { getRandomElement, getWeekDay } from '@server/utils/utils'
 
@@ -102,6 +102,16 @@ export const handles: event[] = [
       const result = await getRankWeek(data.from_id)
       const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.count})`).join('\n')
       await sendText(rankText, data.from_id)
+    },
+  },
+  {
+    type: 0,
+    keys: ['中奖记录'],
+    is_group: true,
+    handle: async (data) => {
+      const res = await getLotteryLogList(data.sender, data.roomid)
+      const text = res.map((item: any) => `[ ${item.date} ]：${item.name}(${item.getType === '0' ? '每日' : '宝箱'})`).join('\n')
+      await sendText(`@${data.userInfo.name}\n最新10条中奖记录\n${text}`, data.from_id)
     },
   },
   {

@@ -1,8 +1,10 @@
 {
   "apps": [
     {
-      "name": "vite-vue-typescript-starter",
-      "script": "start.bat",
+      "name": "server",
+      "script": "src/server/main.ts",
+      "interpreter": "node",
+      "interpreterArgs": "--import tsx",
       "watch": true
     }
   ]

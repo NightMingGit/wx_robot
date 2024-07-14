@@ -9,7 +9,6 @@ import type { msg } from '@server/type/type'
 
 const app = express()
 app.use(express.json())
-
 app.use(express.urlencoded({ extended: true }))
 app.post('/robot', (req, res) => {
   triggerEvent(req.body as msg)
