@@ -12,6 +12,7 @@ export async function getTodayLotteryLog(user_id: string, group_id: string) {
       date: {
         [Op.between]: [start, end],
       },
+      getType: '0',
     },
   })
 }
