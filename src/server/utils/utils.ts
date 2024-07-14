@@ -6,7 +6,7 @@ import logger from '@server/logger'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import config from '@server/config'
-import type { diffUser } from '@server/type/type'
+import type { diffUser, lotteryList } from '@server/type/type'
 
 dayjs.locale('zh-cn')
 
@@ -112,4 +112,19 @@ export function getRandomElement<T>(array: T[]): T {
 export function getSuffix(str: string) {
   const index = str.indexOf('#')
   return index > -1 ? str.substring(index + 1) : ''
+}
+export function drawPrizes(participants: lotteryList[], numWinners: number): lotteryList[] {
+  const winners: lotteryList[] = []
+  const participantsCopy: lotteryList[] = [...participants] // 复制原数组以避免修改原始数据
+
+  for (let i = 0; i < numWinners; i++) {
+    if (participantsCopy.length === 0) {
+      break // 如果参与者不够，提前退出循环
+    }
+    const randomIndex = Math.floor(Math.random() * participantsCopy.length) // 随机选取一个索引
+    winners.push(participantsCopy[randomIndex]) // 将选中的参与者加入到中奖名单
+    participantsCopy.splice(randomIndex, 1) // 从数组中移除已中奖的参与者
+  }
+
+  return winners // 返回中奖者名单
 }

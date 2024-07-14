@@ -1,4 +1,4 @@
-import type { event, msg, prize } from '@server/type/type'
+import type { event, lotteryList, msg, prize } from '@server/type/type'
 import { isSign, sign } from '@server/services/sign'
 import { sendText } from '@server/api/system'
 import { drawPrize, syncGroups } from '@server/events/common'
@@ -7,7 +7,7 @@ import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@s
 import { getPrizeList } from '@server/services/prize'
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
-import { getRandomElement, getWeekDay } from '@server/utils/utils'
+import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
 import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 
 export const handles: event[] = [
@@ -145,13 +145,13 @@ export const handles: event[] = [
         return
       }
       // 判断当前是否已经有抽奖
-      const lottery = await getLottery()
+      const lottery = await getLottery(data.from_id)
       if (lottery) {
         await sendText('当前已经有抽奖了', data.from_id)
         return
       }
       // 发起抽奖
-      await createLottery(data.sender, data.content.split('#')[1], num, JSON.stringify([]))
+      await createLottery(data.sender, data.from_id, data.content.split('#')[1], num, JSON.stringify([]))
       const text = `@所有人 抽奖开始咯\n奖品：${data.content.split('#')[1]}\n人数：${num}\n参与方式：发送“加入抽奖”`
       await sendText(text, data.from_id, 'notify@all')
     },
@@ -161,7 +161,7 @@ export const handles: event[] = [
     keys: ['加入抽奖'],
     handle: async (data) => {
       // 判断当前是否有抽奖
-      const lottery: any = await getLottery()
+      const lottery: any = await getLottery(data.from_id)
       if (!lottery) {
         await sendText('当前没有抽奖', data.from_id)
         return
@@ -171,9 +171,9 @@ export const handles: event[] = [
         await sendText(`@${data.userInfo.name} 金币不足，无法参与抽奖`, data.from_id)
         return
       }
-      const list = JSON.parse(lottery.list)
+      const list: lotteryList[] = JSON.parse(lottery.list)
 
-      if (list.includes(data.sender)) {
+      if (list.find(item => item.userId === data.sender)) {
         return
       }
       list.push({
@@ -188,7 +188,7 @@ export const handles: event[] = [
     type: 0,
     keys: ['抽奖名单'],
     handle: async (data) => {
-      const lottery: any = await getLottery()
+      const lottery: any = await getLottery(data.from_id)
       if (!lottery) {
         await sendText('当前没有抽奖', data.from_id)
         return
@@ -197,14 +197,23 @@ export const handles: event[] = [
         return
       }
       const list = JSON.parse(lottery.list)
-      await sendText(`抽奖名单：${list.map((item: any) => item.name).join('，')}\n奖品：${lottery.name}\n抽取人数：${lottery.count}\n参与人数：${list.length}`, data.from_id)
+      // 构建抽奖名单字符串
+      const names = list.map((item: any) => item.name).join('，')
+      const prizeInfo = `奖品：${lottery.name}`
+      const countInfo = `抽取人数：${lottery.count}`
+      const participantCount = `参与人数：${list.length}`
+
+      // 组合最终输出的消息
+      const message = `抽奖名单：${names}\n${prizeInfo}\n${countInfo}\n${participantCount}`
+      // 发送消息
+      await sendText(message, data.from_id)
     },
   },
   {
     type: 0,
     keys: ['结束抽奖'],
     handle: async (data) => {
-      const lottery: any = await getLottery()
+      const lottery: any = await getLottery(data.from_id)
       if (!lottery) {
         await sendText('当前没有抽奖', data.from_id)
         return
@@ -213,8 +222,29 @@ export const handles: event[] = [
         await sendText('只有发起抽奖的人才能结束抽奖', data.from_id)
         return
       }
-      await endLottery(lottery.id)
-      await sendText('抽奖结束', data.from_id)
+      // 人数是否足够
+      const needNum = lottery.count
+      const listNum = JSON.parse(lottery.list).length
+      if (needNum > listNum) {
+        await sendText(`人数不足，需要${needNum}人，当前有${listNum}人`, data.from_id)
+        return
+      }
+
+      const list: lotteryList[] = JSON.parse(lottery.list)
+      const num = lottery.count
+
+      const result = drawPrizes(list, num)
+      await endLottery(lottery.id, JSON.stringify(result))
+      // 构建中奖名单字符串
+      const winnerNames = result.map(item => `@${item.name}`).join('\n')
+      const prizeName = `抽中${lottery.name}`
+      const message = `抽奖结束\n${winnerNames}\n${prizeName}`
+
+      // 构建提及用户的 ID 字符串，用于消息中提及这些用户
+      const mentionIds = result.map(item => item.userId).join(',')
+
+      // 发送消息
+      await sendText(message, data.from_id, mentionIds)
     },
   },
   {

@@ -13,6 +13,11 @@ const model = sequelize.define('lottery', {
     allowNull: false,
     comment: '发起人',
   },
+  group_id: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    comment: '群id',
+  },
   // 中奖人
   winner: {
     type: DataTypes.STRING,

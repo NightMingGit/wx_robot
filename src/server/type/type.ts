@@ -53,3 +53,7 @@ export interface prize {
   probability: number
   getType: string
 }
+export interface lotteryList {
+  userId: string
+  name: string
+}
