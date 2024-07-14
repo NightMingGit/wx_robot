@@ -107,3 +107,9 @@ export function findDifferences(arr1: diffUser[], arr2: diffUser[]) {
 export function getRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
 }
+
+// 取出 xxx#  #后面的内容
+export function getSuffix(str: string) {
+  const index = str.indexOf('#')
+  return index > -1 ? str.substring(index + 1) : ''
+}

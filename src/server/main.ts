@@ -12,14 +12,12 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.post('/robot', (req, res) => {
-  triggerEvent(req.body as msg)
-  // 转发给py
-  try {
-    sendBody(req.body)
-  }
-  catch (e) {
-    console.log('转发py失败')
-  }
+  triggerEvent(req.body as msg).then().catch((err) => {
+    logger.error(err)
+  })
+  sendBody(req.body).then(() => {}).catch(() => {
+    // logger.error(err)
+  })
   res.send({
     status: '0',
     message: 'success',
