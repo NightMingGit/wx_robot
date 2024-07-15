@@ -106,3 +106,17 @@ export async function getTop10Card(group_id: string) {
     raw: true,
   })
 }
+
+// 取出score最多的用户
+export async function getTop1(group_id: string) {
+  return await user.findOne({
+    where: {
+      group_id,
+      score: {
+        [Op.gt]: 0,
+      },
+    },
+    order: [['score', 'DESC']],
+    raw: true,
+  })
+}

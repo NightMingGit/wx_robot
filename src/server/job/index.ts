@@ -1,7 +1,7 @@
 import cron from 'node-cron'
 import { getActiveGroupIds } from '@server/global'
 import { getGroupMembers } from '@server/events/common'
-import { deleteUser, getGroupUsers, updateUser } from '@server/services/user'
+import { deleteUser, getGroupUsers, getTop1, updateUser } from '@server/services/user'
 import { findDifferences } from '@server/utils/utils'
 import { sendText } from '@server/api/system'
 import { delSign } from '@server/services/sign'
@@ -12,12 +12,15 @@ cron.schedule('*/30 * * * * *', async () => {
   await checkGroupAndRename()
 })
 cron.schedule('0 9-18 * * 1-5', async () => {
+  const top: any = await getTop1('45563492329@chatroom')
+  await sendText(`首富[ ${top.name} ]提醒你：长时间工作或学习后，请记得喝水，帮助身体排毒和恢复精力。`, '45563492329@chatroom')
   await drawPrizeFun({
     roomid: '45563492329@chatroom',
     sender: '45563492329@chatroom',
     from_id: '45563492329@chatroom',
   })
 })
+// 首富喝水提示
 // 退群和改名检测
 async function checkGroupAndRename() {
   // 只对已经激活的群 做检测
