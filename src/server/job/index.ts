@@ -6,11 +6,18 @@ import { findDifferences } from '@server/utils/utils'
 import { sendText } from '@server/api/system'
 import { delSign } from '@server/services/sign'
 import { deleteMessage } from '@server/services/message'
+import { drawPrizeFun } from '@server/events/handles'
 
 cron.schedule('*/30 * * * * *', async () => {
   await checkGroupAndRename()
 })
-
+cron.schedule('0 9-18 * * 1-5', async () => {
+  await drawPrizeFun({
+    roomid: '45563492329@chatroom',
+    sender: '45563492329@chatroom',
+    from_id: '45563492329@chatroom',
+  })
+})
 // 退群和改名检测
 async function checkGroupAndRename() {
   // 只对已经激活的群 做检测

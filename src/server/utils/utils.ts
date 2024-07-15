@@ -1,3 +1,4 @@
+import * as fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 import { Buffer } from 'node:buffer'
@@ -7,6 +8,7 @@ import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import config from '@server/config'
 import type { diffUser, lotteryList } from '@server/type/type'
+import request from 'axios'
 
 dayjs.locale('zh-cn')
 
@@ -43,16 +45,19 @@ export async function parseProtobuf(wxRoomData: string) {
 export function getTodayDate() {
   return dayjs().format('YYYY-MM-DD')
 }
+
 // 返回今日日期，格式为 YYYY-MM-DD hh:mm:ss
 export function getDateTime() {
   return dayjs().format('YYYY-MM-DD HH:mm:ss')
 }
+
 // 返回今日0点和23:59:59
 export function getTodayStartEnd() {
   const start = dayjs().startOf('day').format('YYYY-MM-DD HH:mm:ss')
   const end = dayjs().endOf('day').format('YYYY-MM-DD HH:mm:ss')
   return { start, end }
 }
+
 // 取本周一至周日日期，格式为 YYYY-MM-DD 用dayjs
 export function getWeekDate() {
   const start = dayjs().startOf('week').format('YYYY-MM-DD')
@@ -69,6 +74,10 @@ export function getMonthDate() {
 
 // 取本周是第几天
 export function getWeekDay() {
+  const day = dayjs().day()
+  if (day === 0) {
+    return 7
+  }
   return dayjs().day()
 }
 
@@ -103,6 +112,7 @@ export function findDifferences(arr1: diffUser[], arr2: diffUser[]) {
     uniqueInArr2,
   }
 }
+
 // 从数组中随机取一个元素
 export function getRandomElement<T>(array: T[]): T {
   return array[Math.floor(Math.random() * array.length)]
@@ -113,6 +123,7 @@ export function getSuffix(str: string) {
   const index = str.indexOf('#')
   return index > -1 ? str.substring(index + 1) : ''
 }
+
 export function drawPrizes(participants: lotteryList[], numWinners: number): lotteryList[] {
   const winners: lotteryList[] = []
   const participantsCopy: lotteryList[] = [...participants] // 复制原数组以避免修改原始数据
@@ -127,4 +138,32 @@ export function drawPrizes(participants: lotteryList[], numWinners: number): lot
   }
 
   return winners // 返回中奖者名单
+}
+
+/**
+ * 下载文件的函数
+ * @param url 文件的URL地址
+ * @param outputPath 输出文件的路径
+ */
+export async function downloadFile(url: string, outputPath: string): Promise<void> {
+  try {
+    const response = await request({
+      method: 'GET',
+      url,
+      responseType: 'stream',
+    })
+
+    const writer = fs.createWriteStream(outputPath)
+
+    response.data.pipe(writer)
+
+    return new Promise((resolve, reject) => {
+      writer.on('finish', resolve)
+      writer.on('error', reject)
+    })
+  }
+  catch (error) {
+    console.error('下载文件失败:', error)
+    throw error
+  }
 }

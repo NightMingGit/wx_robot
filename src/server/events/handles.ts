@@ -10,6 +10,32 @@ import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCo
 import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
 import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 
+export async function drawPrizeFun(data: msg | any) {
+  const messageList = (await getRankByDateRange(data.roomid)).map((item: any) => {
+    return {
+      name: item.name,
+      user_id: item.user_id,
+      count: +item.count,
+    }
+  }).filter(item => item.count > getWeekDay() * 20)
+  if (messageList.length <= 0) {
+    await sendText('宝箱暂无人满足条件', data.roomid)
+    return
+  }
+  const randomUser = getRandomElement(messageList)
+  const prizeList = await getPrizeList(['0', '1'])
+  const prize = drawPrize(prizeList)
+  if (!prize) {
+    await sendText('抽奖发生错误', data.roomid)
+    return
+  }
+  const paramsData: msg = { ...data, sender: randomUser.user_id }
+  paramsData.userInfo = await getUserInfo(paramsData.sender, paramsData.roomid)
+  // 存抽奖记录
+  await createLotteryLog(paramsData.sender, paramsData.roomid, prize.id, '1')
+  const prizeRes = await sendPrize(paramsData, prize)
+  await sendText(`@${paramsData.userInfo?.name}\n${prizeRes}`, paramsData.from_id)
+}
 export const handles: event[] = [
   {
     type: 0,
@@ -17,30 +43,7 @@ export const handles: event[] = [
     is_group: true,
     isAdmin: true,
     handle: async (data) => {
-      const messageList = (await getRankByDateRange(data.roomid)).map((item: any) => {
-        return {
-          name: item.name,
-          user_id: item.user_id,
-          count: +item.count,
-        }
-      }).filter(item => item.count > getWeekDay() * 20)
-      if (messageList.length <= 0) {
-        await sendText('暂无人满足条件', data.roomid)
-        return
-      }
-      const randomUser = getRandomElement(messageList)
-      const prizeList = await getPrizeList(['0', '1'])
-      const prize = drawPrize(prizeList)
-      if (!prize) {
-        await sendText('抽奖发生错误', data.roomid)
-        return
-      }
-      const paramsData: msg = { ...data, sender: randomUser.user_id }
-      paramsData.userInfo = await getUserInfo(paramsData.sender, paramsData.roomid)
-      // 存抽奖记录
-      await createLotteryLog(paramsData.sender, paramsData.roomid, prize.id, '1')
-      const prizeRes = await sendPrize(paramsData, prize)
-      await sendText(`@${paramsData.userInfo?.name}\n${prizeRes}`, paramsData.from_id)
+      await drawPrizeFun(data)
     },
   },
   {
