@@ -24,10 +24,10 @@ import {
   getWeekCount,
 } from '@server/services/message'
 import {
-  downloadFile,
   drawPrizes,
   getRandomElement,
   getWeekDay,
+  sendImgVideo,
 } from '@server/utils/utils'
 import {
   createLottery,
@@ -35,7 +35,6 @@ import {
   getLottery,
   saveList,
 } from '@server/services/lottery'
-import { getCurPath } from '@server/global'
 
 export async function drawPrizeFun(data: msg | any) {
   const messageList = (await getRankByDateRange(data.roomid))
@@ -334,23 +333,15 @@ export const handles: event[] = [
   {
     type: 0,
     keys: ['写真'],
-    handle: async () => {
-      const curPath = getCurPath('/downloads/png')
-      const curNow = Date.now()
-      await downloadFile(
-        'http://api.yujn.cn/api/yht.php?type=image',
-        `${`${curPath}/${curNow}_.png`}`,
-      )
+    handle: async (data) => {
+      sendImgVideo(data, 'http://api.yujn.cn/api/yht.php?type=image', 'png')
     },
   },
   {
     type: 0,
     keys: ['小姐姐'],
-    handle: async () => {
-      // await downloadFile(
-      //   "http://api.yujn.cn/api/xjj.php?type=video",
-      //   `./src/server/downloads/${Date.now() + "_.mp4"}`
-      // );
+    handle: async (data) => {
+      sendImgVideo(data, 'http://api.yujn.cn/api/xjj.php?type=video', 'mp4')
     },
   },
 ]

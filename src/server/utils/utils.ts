@@ -7,8 +7,11 @@ import logger from '@server/logger'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import config from '@server/config'
-import type { diffUser, lotteryList } from '@server/type/type'
+import type { diffUser, lotteryList, msg } from '@server/type/type'
 import request from 'axios'
+import { getCurPath } from '@server/global'
+import { sendImage, sendText } from '@server/api/system'
+// import { updateScore } from "@server/services/user";
 
 dayjs.locale('zh-cn')
 
@@ -174,5 +177,31 @@ export async function downloadFile(
   catch (error) {
     console.error('下载文件失败:', error)
     throw error
+  }
+}
+
+export async function sendImgVideo(
+  data: msg,
+  url: string,
+  type: 'png' | 'mp4',
+) {
+  // if (!data.userInfo) {
+  //   await sendText("数据错误", data.from_id);
+  //   return;
+  // }
+
+  // if (data.userInfo.score < config.gptScore) {
+  //   await sendText(`穷逼不掏${config.gptScore}金币还想看涩图？`, data.from_id);
+  //   return;
+  // }
+  try {
+    const curPath = getCurPath('/downloads')
+    const curNow = Date.now()
+    await downloadFile(url, `${curPath}/${curNow}_.${type}`)
+    // await updateScore(data.sender, data.roomid, -config.gptScore);
+    await sendImage(`${curPath}/${curNow}_.${type}`, data.from_id)
+  }
+  catch (err) {
+    await sendText('接口有限制，待会儿再看涩图', data.from_id)
   }
 }
