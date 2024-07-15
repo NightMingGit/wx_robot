@@ -29,7 +29,6 @@ function matches(event: event, content: string): boolean {
 }
 
 async function triggerEvent(data: msg) {
-  console.log(data)
   // 处理开关群事件
   await switchGroup(data)
   data.from_id = data.is_group ? data.roomid : data.sender
