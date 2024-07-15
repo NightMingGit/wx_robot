@@ -35,6 +35,7 @@ import {
   getLottery,
   saveList,
 } from '@server/services/lottery'
+import { eat } from '@server/api/api'
 
 export async function drawPrizeFun(data: msg | any) {
   const messageList = (await getRankByDateRange(data.roomid))
@@ -160,7 +161,7 @@ export const handles: event[] = [
       const text = res
         .map(
           (item: any) =>
-            `[ ${item.date} ]：${item.name}(${
+            `[ ${item.date} ]\n${item.name}(${
               item.getType === '0' ? '每日' : '宝箱'
             })`,
         )
@@ -334,14 +335,27 @@ export const handles: event[] = [
     type: 0,
     keys: ['写真'],
     handle: async (data) => {
-      sendImgVideo(data, 'http://api.yujn.cn/api/yht.php?type=image', 'png')
+      await sendImgVideo(data, 'http://api.yujn.cn/api/yht.php?type=image', 'png')
     },
   },
   {
     type: 0,
     keys: ['小姐姐'],
     handle: async (data) => {
-      sendImgVideo(data, 'http://api.yujn.cn/api/xjj.php?type=video', 'mp4')
+      await sendImgVideo(data, 'http://api.yujn.cn/api/xjj.php?type=video', 'mp4')
+    },
+  },
+  {
+    type: 0,
+    keys: ['吃啥'],
+    handle: async (data) => {
+      try {
+        const res = await eat()
+        await sendText(res.msg, data.from_id)
+      }
+      catch (e) {
+        await sendText('吃啥接口异常', data.from_id)
+      }
     },
   },
   {

@@ -163,8 +163,6 @@ export async function downloadFile(
       url,
       responseType: 'stream',
     })
-    console.log('response', response)
-
     const writer = fs.createWriteStream(outputPath)
 
     response.data.pipe(writer)
