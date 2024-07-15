@@ -92,7 +92,6 @@ export async function getRankWeek(group_id: string) {
         u.user_id,u.name
       ORDER BY 
         count DESC
-      LIMIT 10
     `
   return await sequelize.query(query, {
     replacements: { start, end, group_id },
