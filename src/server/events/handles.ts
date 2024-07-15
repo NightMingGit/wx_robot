@@ -335,14 +335,22 @@ export const handles: event[] = [
     type: 0,
     keys: ['写真'],
     handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/yht.php?type=image', 'png')
+      await sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/yht.php?type=image',
+        'png',
+      )
     },
   },
   {
     type: 0,
     keys: ['小姐姐'],
     handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/xjj.php?type=video', 'mp4')
+      await sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/xjj.php?type=video',
+        'mp4',
+      )
     },
   },
   {
