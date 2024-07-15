@@ -57,7 +57,7 @@ async function triggerEvent(data: msg) {
       continue
     }
     // 如果是群事件 没有用户数据就不做处理 同步可能有几秒延迟
-    if (!data.userInfo && data.is_group) {
+    if (!data.userInfo && data.is_group && data.content !== '同步') {
       await sendText('请稍后再试，数据正在同步', data.from_id)
       return
     }
