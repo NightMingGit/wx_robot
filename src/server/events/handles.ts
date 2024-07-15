@@ -344,6 +344,64 @@ export const handles: event[] = [
       sendImgVideo(data, 'http://api.yujn.cn/api/xjj.php?type=video', 'mp4')
     },
   },
+  {
+    type: 0,
+    keys: ['男友视角'],
+    handle: async (data) => {
+      sendImgVideo(
+        data,
+        'https://api.yujn.cn/api/duilian.php?type=video',
+        'mp4',
+      )
+    },
+  },
+  {
+    type: 0,
+    keys: ['白丝视频'],
+    handle: async (data) => {
+      sendImgVideo(data, 'http://api.yujn.cn/api/baisis.php?type=video', 'mp4')
+    },
+  },
+  {
+    type: 0,
+    keys: ['黑丝视频'],
+    handle: async (data) => {
+      sendImgVideo(data, 'http://api.yujn.cn/api/heisis.php?type=video', 'mp4')
+    },
+  },
+  {
+    type: 0,
+    keys: ['摸鱼日报'],
+    handle: async (data) => {
+      sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/moyu.php?msg=摸鱼日报&type=image',
+        'png',
+      )
+    },
+  },
+  {
+    type: 0,
+    keys: ['摸鱼日报'],
+    handle: async (data) => {
+      sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/moyu.php?msg=星座运势&type=image',
+        'png',
+      )
+    },
+  },
+  {
+    type: 0,
+    keys: ['内涵段子'],
+    handle: async (data) => {
+      sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/moyu.php?msg=内涵段子&type=image',
+        'png',
+      )
+    },
+  },
 ]
 
 async function signFunction(data: msg): Promise<string> {
