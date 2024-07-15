@@ -35,7 +35,7 @@ const msgTypes = {
 }
 
 // 允许触发计数的类型
-export const allowMsgTypes = [1, 3, 34, 43, 62]
+export const allowMsgTypes = [1, 3, 34, 43, 62, 47]
 // 允许响应的类型
 export const allowRespTypes = [1]
 
