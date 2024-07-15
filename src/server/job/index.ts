@@ -18,6 +18,7 @@ cron.schedule('0 9-18 * * 1-5', async () => {
     from_id: '45563492329@chatroom',
   })
 })
+// 首富喝水提示
 // 退群和改名检测
 async function checkGroupAndRename() {
   // 只对已经激活的群 做检测

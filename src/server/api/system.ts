@@ -7,7 +7,12 @@ export function sendText(msg: string, receiver: string, aters: string = '') {
     aters,
   })
 }
-
+export function sendImage(path: string, receiver: string) {
+  return post('/image', {
+    path,
+    receiver,
+  })
+}
 export function sql(db: string, sql: string) {
   return post('/sql', {
     db,
