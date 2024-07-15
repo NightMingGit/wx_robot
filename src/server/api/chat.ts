@@ -1,4 +1,5 @@
 import { post } from '@server/request'
+import { getRandomElement } from '@server/utils/utils'
 
 export function chatBot(content: string) {
   const key = [
@@ -14,7 +15,7 @@ export function chatBot(content: string) {
     {
       headers: {
         // 随机取一个key
-        Authorization: `Bearer ${key[Math.floor(Math.random() * key.length)]}`,
+        Authorization: `Bearer ${getRandomElement(key)}`,
       },
     },
   )

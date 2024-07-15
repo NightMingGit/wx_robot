@@ -3,21 +3,50 @@ import { isSign, sign } from '@server/services/sign'
 import { sendText } from '@server/api/system'
 import { drawPrize, syncGroups } from '@server/events/common'
 import config from '@server/config'
-import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
+import {
+  getTop10,
+  getTop10Card,
+  getUserInfo,
+  updateCard,
+  updateScore,
+} from '@server/services/user'
 import { getPrizeList } from '@server/services/prize'
-import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
-import { getRankByDateRange, getRankToday, getRankWeek, getTodayCount, getWeekCount } from '@server/services/message'
-import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
-import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
+import {
+  createLotteryLog,
+  getLotteryLogList,
+  getTodayLotteryLog,
+} from '@server/services/lotteryLog'
+import {
+  getRankByDateRange,
+  getRankToday,
+  getRankWeek,
+  getTodayCount,
+  getWeekCount,
+} from '@server/services/message'
+import {
+  downloadFile,
+  drawPrizes,
+  getRandomElement,
+  getWeekDay,
+} from '@server/utils/utils'
+import {
+  createLottery,
+  endLottery,
+  getLottery,
+  saveList,
+} from '@server/services/lottery'
+import { getCurPath } from '@server/global'
 
 export async function drawPrizeFun(data: msg | any) {
-  const messageList = (await getRankByDateRange(data.roomid)).map((item: any) => {
-    return {
-      name: item.name,
-      user_id: item.user_id,
-      count: +item.count,
-    }
-  }).filter(item => item.count > getWeekDay() * 20)
+  const messageList = (await getRankByDateRange(data.roomid))
+    .map((item: any) => {
+      return {
+        name: item.name,
+        user_id: item.user_id,
+        count: +item.count,
+      }
+    })
+    .filter(item => item.count > getWeekDay() * 20)
   if (messageList.length <= 0) {
     await sendText('宝箱暂无人满足条件', data.roomid)
     return
@@ -34,7 +63,10 @@ export async function drawPrizeFun(data: msg | any) {
   // 存抽奖记录
   await createLotteryLog(paramsData.sender, paramsData.roomid, prize.id, '1')
   const prizeRes = await sendPrize(paramsData, prize)
-  await sendText(`@${paramsData.userInfo?.name}\n${prizeRes}`, paramsData.from_id)
+  await sendText(
+    `@${paramsData.userInfo?.name}\n${prizeRes}`,
+    paramsData.from_id,
+  )
 }
 export const handles: event[] = [
   {
@@ -64,7 +96,11 @@ export const handles: event[] = [
       const signResult = await isSign(data.sender, data.roomid)
       const todayMessage: any = await getTodayCount(data.sender, data.roomid)
       const weekMessage = await getWeekCount(data.sender, data.roomid)
-      const sendText_ = `[ ${data.userInfo.name} ]\n金币：${data.userInfo.score}\n崚影卡：${data.userInfo.card}\n今日打卡：${signResult ? '是' : '否'}\n今日摸鱼：${todayMessage.count}\n本周摸鱼：${weekMessage}`
+      const sendText_ = `[ ${data.userInfo.name} ]\n金币：${
+        data.userInfo.score
+      }\n崚影卡：${data.userInfo.card}\n今日打卡：${
+        signResult ? '是' : '否'
+      }\n今日摸鱼：${todayMessage.count}\n本周摸鱼：${weekMessage}`
       await sendText(sendText_, data.from_id)
     },
   },
@@ -74,7 +110,9 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getTop10(data.from_id)
-      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.score})`).join('\n')
+      const rankText = result
+        .map((item: any, index) => `${index + 1}.${item.name}(${item.score})`)
+        .join('\n')
       await sendText(rankText, data.from_id)
     },
   },
@@ -84,7 +122,9 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getTop10Card(data.from_id)
-      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.card})`).join('\n')
+      const rankText = result
+        .map((item: any, index) => `${index + 1}.${item.name}(${item.card})`)
+        .join('\n')
       await sendText(rankText, data.from_id)
     },
   },
@@ -94,7 +134,9 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getRankToday(data.from_id)
-      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.count})`).join('\n')
+      const rankText = result
+        .map((item: any, index) => `${index + 1}.${item.name}(${item.count})`)
+        .join('\n')
       await sendText(rankText, data.from_id)
     },
   },
@@ -104,7 +146,9 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const result = await getRankWeek(data.from_id)
-      const rankText = result.map((item: any, index) => `${index + 1}.${item.name}(${item.count})`).join('\n')
+      const rankText = result
+        .map((item: any, index) => `${index + 1}.${item.name}(${item.count})`)
+        .join('\n')
       await sendText(rankText, data.from_id)
     },
   },
@@ -114,8 +158,18 @@ export const handles: event[] = [
     is_group: true,
     handle: async (data) => {
       const res = await getLotteryLogList(data.sender, data.roomid)
-      const text = res.map((item: any) => `[ ${item.date} ]：${item.name}(${item.getType === '0' ? '每日' : '宝箱'})`).join('\n')
-      await sendText(`@${data.userInfo.name}\n最新10条中奖记录\n${text}`, data.from_id)
+      const text = res
+        .map(
+          (item: any) =>
+            `[ ${item.date} ]：${item.name}(${
+              item.getType === '0' ? '每日' : '宝箱'
+            })`,
+        )
+        .join('\n')
+      await sendText(
+        `@${data.userInfo.name}\n最新10条中奖记录\n${text}`,
+        data.from_id,
+      )
     },
   },
   {
@@ -125,7 +179,10 @@ export const handles: event[] = [
     handle: async (data) => {
       const signResult = await signFunction(data)
       const lotteryResult = await lotteryFunction(data)
-      await sendText(`@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}`, data.from_id)
+      await sendText(
+        `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}`,
+        data.from_id,
+      )
     },
   },
   {
@@ -138,7 +195,10 @@ export const handles: event[] = [
       const reg = /^发起抽奖#.+?#\d+$/
 
       if (!reg.test(data.content)) {
-        await sendText('格式错误，正确格式：发起抽奖#奖品内容#人数', data.from_id)
+        await sendText(
+          '格式错误，正确格式：发起抽奖#奖品内容#人数',
+          data.from_id,
+        )
         return
       }
       // 人数最大10人 最小1人
@@ -154,8 +214,16 @@ export const handles: event[] = [
         return
       }
       // 发起抽奖
-      await createLottery(data.sender, data.from_id, data.content.split('#')[1], num, JSON.stringify([]))
-      const text = `@所有人 抽奖开始咯\n奖品：${data.content.split('#')[1]}\n人数：${num}\n参与方式：发送“加入抽奖”`
+      await createLottery(
+        data.sender,
+        data.from_id,
+        data.content.split('#')[1],
+        num,
+        JSON.stringify([]),
+      )
+      const text = `@所有人 抽奖开始咯\n奖品：${
+        data.content.split('#')[1]
+      }\n人数：${num}\n参与方式：发送“加入抽奖”`
       await sendText(text, data.from_id, 'notify@all')
     },
   },
@@ -171,7 +239,10 @@ export const handles: event[] = [
       }
       // 判断金币是否够
       if (data.userInfo.score < config.lotteryScore) {
-        await sendText(`@${data.userInfo.name} 金币不足，无法参与抽奖`, data.from_id)
+        await sendText(
+          `@${data.userInfo.name} 金币不足，无法参与抽奖`,
+          data.from_id,
+        )
         return
       }
       const list: lotteryList[] = JSON.parse(lottery.list)
@@ -229,7 +300,10 @@ export const handles: event[] = [
       const needNum = lottery.count
       const listNum = JSON.parse(lottery.list).length
       if (needNum > listNum) {
-        await sendText(`人数不足，需要${needNum}人，当前有${listNum}人`, data.from_id)
+        await sendText(
+          `人数不足，需要${needNum}人，当前有${listNum}人`,
+          data.from_id,
+        )
         return
       }
 
@@ -255,6 +329,28 @@ export const handles: event[] = [
     keys: ['测试私聊'],
     handle: async (data) => {
       await sendText(JSON.stringify(data), data.from_id)
+    },
+  },
+  {
+    type: 0,
+    keys: ['写真'],
+    handle: async () => {
+      const curPath = getCurPath('/downloads/png')
+      const curNow = Date.now()
+      await downloadFile(
+        'http://api.yujn.cn/api/yht.php?type=image',
+        `${`${curPath}/${curNow}_.png`}`,
+      )
+    },
+  },
+  {
+    type: 0,
+    keys: ['小姐姐'],
+    handle: async () => {
+      // await downloadFile(
+      //   "http://api.yujn.cn/api/xjj.php?type=video",
+      //   `./src/server/downloads/${Date.now() + "_.mp4"}`
+      // );
     },
   },
 ]
@@ -291,7 +387,11 @@ async function lotteryFunction(data: msg): Promise<string> {
 }
 
 // 发放奖励 dailyNeedScore每日抽奖要扣除的
-async function sendPrize(data: msg, prize: prize, dailyNeedScore: number = 0): Promise<string> {
+async function sendPrize(
+  data: msg,
+  prize: prize,
+  dailyNeedScore: number = 0,
+): Promise<string> {
   if (prize.type === '0') {
     return '很遗憾什么也没抽到'
   }

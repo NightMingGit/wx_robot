@@ -87,7 +87,9 @@ export function isAdmin(userId: string) {
 }
 
 export function findDifferences(arr1: diffUser[], arr2: diffUser[]) {
-  const mapArr1 = new Map(arr1.map(item => [item.user_id + item.group_id, item]))
+  const mapArr1 = new Map(
+    arr1.map(item => [item.user_id + item.group_id, item]),
+  )
   const uniqueInArr2: any[] = []
   const changedNames: { from: diffUser, to: diffUser }[] = []
 
@@ -124,7 +126,10 @@ export function getSuffix(str: string) {
   return index > -1 ? str.substring(index + 1) : ''
 }
 
-export function drawPrizes(participants: lotteryList[], numWinners: number): lotteryList[] {
+export function drawPrizes(
+  participants: lotteryList[],
+  numWinners: number,
+): lotteryList[] {
   const winners: lotteryList[] = []
   const participantsCopy: lotteryList[] = [...participants] // 复制原数组以避免修改原始数据
 
@@ -145,13 +150,17 @@ export function drawPrizes(participants: lotteryList[], numWinners: number): lot
  * @param url 文件的URL地址
  * @param outputPath 输出文件的路径
  */
-export async function downloadFile(url: string, outputPath: string): Promise<void> {
+export async function downloadFile(
+  url: string,
+  outputPath: string,
+): Promise<void> {
   try {
     const response = await request({
       method: 'GET',
       url,
       responseType: 'stream',
     })
+    console.log('response', response)
 
     const writer = fs.createWriteStream(outputPath)
 
