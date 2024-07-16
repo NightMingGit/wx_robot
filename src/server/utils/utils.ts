@@ -203,6 +203,6 @@ export async function sendImgVideo(
     await sendImage(`${curPath}/${curNow}_.${type}`, data.from_id)
   }
   catch (err) {
-    await sendText('接口有限制，待会儿再看涩图', data.from_id)
+    await sendText('接口错误', data.from_id)
   }
 }

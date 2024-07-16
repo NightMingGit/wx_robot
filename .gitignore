@@ -2,3 +2,4 @@
 /.idea/
 *.log
 *.mjs
+/src/server/downloads/

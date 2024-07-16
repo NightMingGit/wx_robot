@@ -12,3 +12,10 @@ export function daily() {
     {},
   )
 }
+// 降雨量
+export function rainfall() {
+  return get(
+    'http://api.yujn.cn/api/jiangyu.php?',
+    {},
+  )
+}

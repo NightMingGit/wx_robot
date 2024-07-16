@@ -97,4 +97,15 @@ export const handlesExternal: event[] = [
       )
     },
   },
+  {
+    type: 0,
+    keys: ['降雨量'],
+    handle: async (data) => {
+      await sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/jiangyu.php?',
+        'png',
+      )
+    },
+  },
 ]
