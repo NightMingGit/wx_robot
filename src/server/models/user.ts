@@ -28,6 +28,11 @@ const model = sequelize.define('user', {
     type: DataTypes.INTEGER,
     defaultValue: 0,
   },
+  // 每日毒鸡汤
+  daily: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 }, {
   timestamps: false,
 })

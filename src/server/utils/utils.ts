@@ -135,10 +135,7 @@ export function getSuffix(str: string) {
   return index > -1 ? str.substring(index + 1) : ''
 }
 
-export function drawPrizes(
-  participants: lotteryList[],
-  numWinners: number,
-): lotteryList[] {
+export function drawPrizes(participants: lotteryList[], numWinners: number): lotteryList[] {
   const winners: lotteryList[] = []
   const participantsCopy: lotteryList[] = [...participants] // 复制原数组以避免修改原始数据
 

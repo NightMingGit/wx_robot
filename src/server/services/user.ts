@@ -120,3 +120,17 @@ export async function getTop1(group_id: string) {
     raw: true,
   })
 }
+// 设置daily字段
+export async function setDaily(user_id: string, group_id: string, daily: string) {
+  return await user.update(
+    {
+      daily,
+    },
+    {
+      where: {
+        user_id,
+        group_id,
+      },
+    },
+  )
+}

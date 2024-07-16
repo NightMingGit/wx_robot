@@ -5,6 +5,7 @@ export interface user {
   group_id: string
   score: number
   card: number
+  daily: string
 }
 
 export interface diffUser {

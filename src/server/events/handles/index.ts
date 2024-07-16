@@ -12,12 +12,13 @@ import {
 import { sendText } from '@server/api/system'
 import { drawPrize, syncGroups } from '@server/events/common'
 import { isSign, sign } from '@server/services/sign'
-import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
+import { getTop10, getTop10Card, getUserInfo, setDaily, updateCard, updateScore } from '@server/services/user'
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 import config from '@server/config'
 import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
+import { daily } from '@server/api/api'
 
 export const handlesIndex: event[] = [
   {
@@ -130,9 +131,7 @@ export const handlesIndex: event[] = [
       const text = res
         .map(
           (item: any) =>
-            `[ ${item.date} ]\n${item.name}(${
-              item.getType === '0' ? '每日' : '宝箱'
-            })`,
+            `[ ${item.date} ]\n${item.name}(${item.getType === '0' ? '每日' : '宝箱'})`,
         )
         .join('\n')
       await sendText(
@@ -148,8 +147,21 @@ export const handlesIndex: event[] = [
     handle: async (data) => {
       const signResult = await signFunction(data)
       const lotteryResult = await lotteryFunction(data)
+      let dailyText: string = ''
+      if (data.userInfo.daily) {
+        dailyText = data.userInfo.daily
+      }
+      else {
+        try {
+          dailyText = await daily()
+          await setDaily(data.sender, data.from_id, dailyText)
+        }
+        catch (e) {
+          dailyText = ''
+        }
+      }
       await sendText(
-        `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}`,
+        `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}\n今日鸡汤：${dailyText}`,
         data.from_id,
       )
     },
@@ -190,9 +202,7 @@ export const handlesIndex: event[] = [
         num,
         JSON.stringify([]),
       )
-      const text = `@所有人 抽奖开始咯\n奖品：${
-        data.content.split('#')[1]
-      }\n人数：${num}\n参与方式：发送“加入抽奖”`
+      const text = `@所有人 抽奖开始咯\n奖品：${data.content.split('#')[1]}\n人数：${num}\n参与方式：发送“加入抽奖”`
       await sendText(text, data.from_id, 'notify@all')
     },
   },
@@ -327,11 +337,7 @@ async function lotteryFunction(data: msg): Promise<string> {
 }
 
 // 发放奖励 dailyNeedScore每日抽奖要扣除的
-async function sendPrize(
-  data: msg,
-  prize: prize,
-  dailyNeedScore: number = 0,
-): Promise<string> {
+async function sendPrize(data: msg, prize: prize, dailyNeedScore: number = 0): Promise<string> {
   if (prize.type === '0') {
     return '很遗憾什么也没抽到'
   }
@@ -366,6 +372,7 @@ async function sendPrize(
 
   return '未知奖励'
 }
+
 export async function drawPrizeFun(data: msg | any) {
   const messageList = (await getRankByDateRange(data.roomid))
     .map((item: any) => {

@@ -6,3 +6,9 @@ export function eat() {
     {},
   )
 }
+export function daily() {
+  return get(
+    'https://api.yujn.cn/api/dujitang.php',
+    {},
+  )
+}
