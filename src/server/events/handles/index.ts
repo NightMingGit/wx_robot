@@ -1,74 +1,43 @@
 import type { event, lotteryList, msg, prize } from '@server/type/type'
-import { isSign, sign } from '@server/services/sign'
-import { sendText } from '@server/api/system'
-import { drawPrize, syncGroups } from '@server/events/common'
-import config from '@server/config'
+
 import {
-  getTop10,
-  getTop10Card,
-  getUserInfo,
-  updateCard,
-  updateScore,
-} from '@server/services/user'
-import { getPrizeList } from '@server/services/prize'
-import {
-  createLotteryLog,
-  getLotteryLogList,
-  getTodayLotteryLog,
-} from '@server/services/lotteryLog'
-import {
+  getNoRecordUserLastMonth,
+  getNoRecordUserThisMonth,
   getRankByDateRange,
   getRankToday,
   getRankWeek,
   getTodayCount,
   getWeekCount,
 } from '@server/services/message'
-import {
-  drawPrizes,
-  getRandomElement,
-  getWeekDay,
-  sendImgVideo,
-} from '@server/utils/utils'
-import {
-  createLottery,
-  endLottery,
-  getLottery,
-  saveList,
-} from '@server/services/lottery'
-import { eat } from '@server/api/api'
+import { sendText } from '@server/api/system'
+import { drawPrize, syncGroups } from '@server/events/common'
+import { isSign, sign } from '@server/services/sign'
+import { getTop10, getTop10Card, getUserInfo, updateCard, updateScore } from '@server/services/user'
+import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
+import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
+import config from '@server/config'
+import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
+import { getPrizeList } from '@server/services/prize'
 
-export async function drawPrizeFun(data: msg | any) {
-  const messageList = (await getRankByDateRange(data.roomid))
-    .map((item: any) => {
-      return {
-        name: item.name,
-        user_id: item.user_id,
-        count: +item.count,
-      }
-    })
-    .filter(item => item.count > getWeekDay() * 20)
-  if (messageList.length <= 0) {
-    await sendText('宝箱暂无人满足条件', data.roomid)
-    return
-  }
-  const randomUser = getRandomElement(messageList)
-  const prizeList = await getPrizeList(['0', '1'])
-  const prize = drawPrize(prizeList)
-  if (!prize) {
-    await sendText('抽奖发生错误', data.roomid)
-    return
-  }
-  const paramsData: msg = { ...data, sender: randomUser.user_id }
-  paramsData.userInfo = await getUserInfo(paramsData.sender, paramsData.roomid)
-  // 存抽奖记录
-  await createLotteryLog(paramsData.sender, paramsData.roomid, prize.id, '1')
-  const prizeRes = await sendPrize(paramsData, prize)
-  await sendText(
-    `@${paramsData.userInfo?.name}\n${prizeRes}`,
-    paramsData.from_id,
-  )
-}
-export const handles: event[] = [
+export const handlesIndex: event[] = [
+  {
+    type: 0,
+    keys: ['本月未发言'],
+    is_group: true,
+    handle: async (data) => {
+      const list: any = await getNoRecordUserThisMonth(data.from_id)
+      await sendText(list.map((item: any) => item.name).join('\n'), data.from_id)
+    },
+  },
+  {
+    type: 0,
+    keys: ['上月未发言'],
+    is_group: true,
+    handle: async (data) => {
+      const list: any = await getNoRecordUserLastMonth(data.from_id)
+      await sendText(list.map((item: any) => item.name).join('\n'), data.from_id)
+    },
+  },
   {
     type: 0,
     keys: ['随机宝箱'],
@@ -324,126 +293,6 @@ export const handles: event[] = [
       await sendText(message, data.from_id, mentionIds)
     },
   },
-  {
-    type: 0,
-    keys: ['测试私聊'],
-    handle: async (data) => {
-      await sendText(JSON.stringify(data), data.from_id)
-    },
-  },
-  {
-    type: 0,
-    keys: ['写真'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/yht.php?type=image',
-        'png',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['小姐姐'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/xjj.php?type=video',
-        'mp4',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['吃啥'],
-    handle: async (data) => {
-      try {
-        const res = await eat()
-        await sendText(res.msg, data.from_id)
-      }
-      catch (e) {
-        await sendText('吃啥接口异常', data.from_id)
-      }
-    },
-  },
-  {
-    type: 0,
-    keys: ['男友视角'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'https://api.yujn.cn/api/duilian.php?type=video',
-        'mp4',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['白丝视频'],
-    handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/baisis.php?type=video', 'mp4')
-    },
-  },
-  {
-    type: 0,
-    keys: ['黑丝视频'],
-    handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/heisis.php?type=video', 'mp4')
-    },
-  },
-  {
-    type: 0,
-    keys: ['摸鱼日报'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/moyu.php?msg=摸鱼日报&type=image',
-        'png',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['星座运势'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/moyu.php?msg=星座运势&type=image',
-        'png',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['内涵段子'],
-    handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/moyu.php?msg=内涵段子&type=image',
-        'png',
-      )
-    },
-  },
-  {
-    type: 0,
-    keys: ['功能'],
-    is_group: true,
-    handle: async (data) => {
-      let text: string = ''
-      text += `打卡：+${config.signScore}金币\n`
-      text += `抽奖：-${config.drawScore}金币\n`
-      const prizes: any = await getPrizeList(['0', '1'])
-      const prizesText = prizes.map((item: any) => item.name).join(',')
-      text += `奖池：(${prizesText})\n`
-      text += '功能列表\n'
-      const menuList: string[] = ['打卡', '今日摸鱼', '本周摸鱼', '金币排行', '崚影卡排行', '我的信息', '写真', '小姐姐姐', '吃啥', '发起抽奖', '加入抽奖', '结束抽奖', '内涵段子', '摸鱼日报', '男友视角', '星座运势', '黑丝视频', '白丝视频']
-      const menus = menuList.map((item, index) => {
-        return `${index + 1}.${item}`
-      })
-      text += menus.join('\n')
-      await sendText(text, data.from_id)
-    },
-  },
 ]
 
 async function signFunction(data: msg): Promise<string> {
@@ -516,4 +365,35 @@ async function sendPrize(
   }
 
   return '未知奖励'
+}
+export async function drawPrizeFun(data: msg | any) {
+  const messageList = (await getRankByDateRange(data.roomid))
+    .map((item: any) => {
+      return {
+        name: item.name,
+        user_id: item.user_id,
+        count: +item.count,
+      }
+    })
+    .filter(item => item.count > getWeekDay() * 20)
+  if (messageList.length <= 0) {
+    await sendText('宝箱暂无人满足条件', data.roomid)
+    return
+  }
+  const randomUser = getRandomElement(messageList)
+  const prizeList = await getPrizeList(['0', '1'])
+  const prize = drawPrize(prizeList)
+  if (!prize) {
+    await sendText('抽奖发生错误', data.roomid)
+    return
+  }
+  const paramsData: msg = { ...data, sender: randomUser.user_id }
+  paramsData.userInfo = await getUserInfo(paramsData.sender, paramsData.roomid)
+  // 存抽奖记录
+  await createLotteryLog(paramsData.sender, paramsData.roomid, prize.id, '1')
+  const prizeRes = await sendPrize(paramsData, prize)
+  await sendText(
+        `@${paramsData.userInfo?.name}\n${prizeRes}`,
+        paramsData.from_id,
+  )
 }

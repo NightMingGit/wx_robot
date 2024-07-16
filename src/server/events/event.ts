@@ -1,4 +1,4 @@
-import { handles } from '@server/events/handles'
+import { main } from '@server/events/main'
 import {
   isGroupActive,
   joinGroup,
@@ -14,7 +14,7 @@ import { sendText } from '@server/api/system'
 import config from '@server/config'
 import type { event, msg } from '../type/type'
 
-const events: event[] = [...handles]
+const events: event[] = [...main]
 
 function matches(event: event, content: string): boolean {
   if (event.type === 0) {

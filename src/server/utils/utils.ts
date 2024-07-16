@@ -75,6 +75,12 @@ export function getMonthDate() {
   return { start, end }
 }
 
+// 取上个月第一天至最后一天日期，格式为 YYYY-MM-DD 用dayjs
+export function getLastMonthDate() {
+  const start = dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+  const end = dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
+  return { start, end }
+}
 // 取本周是第几天
 export function getWeekDay() {
   const day = dayjs().day()

@@ -1,5 +1,5 @@
 import messageModel from '@server/models/message'
-import { getTodayDate, getWeekDate } from '@server/utils/utils'
+import { getLastMonthDate, getMonthDate, getTodayDate, getWeekDate } from '@server/utils/utils'
 import sequelize from '@server/models/sequelize'
 import { Op, QueryTypes } from 'sequelize'
 
@@ -120,5 +120,43 @@ export async function getWeekCount(user_id: string, group_id: string) {
         [Op.between]: [start, end],
       },
     },
+  })
+}
+
+// 连user表查询出本月没有记录的用户
+export async function getNoRecordUserThisMonth(group_id: string) {
+  const { start, end } = getMonthDate()
+  const query = `
+       SELECT
+        u.user_id,
+        u.name
+      FROM
+        user u
+      LEFT JOIN
+        message m ON u.user_id = m.user_id AND u.group_id = m.group_id
+        AND m.date BETWEEN :start AND :end
+      WHERE
+        m.user_id IS NULL AND u.group_id = :group_id`
+  return await sequelize.query(query, {
+    replacements: { start, end, group_id },
+    type: QueryTypes.SELECT,
+  })
+}
+export async function getNoRecordUserLastMonth(group_id: string) {
+  const { start, end } = getLastMonthDate()
+  const query = `
+       SELECT
+        u.user_id,
+        u.name
+      FROM
+        user u
+      LEFT JOIN
+        message m ON u.user_id = m.user_id AND u.group_id = m.group_id
+        AND m.date BETWEEN :start AND :end
+      WHERE
+        m.user_id IS NULL AND u.group_id = :group_id`
+  return await sequelize.query(query, {
+    replacements: { start, end, group_id },
+    type: QueryTypes.SELECT,
   })
 }
