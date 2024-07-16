@@ -11,6 +11,7 @@ import type { diffUser, lotteryList, msg } from '@server/type/type'
 import request from 'axios'
 import { getCurPath } from '@server/global'
 import { sendImage, sendText } from '@server/api/system'
+import { getText } from '@server/api/api'
 // import { updateScore } from "@server/services/user";
 
 dayjs.locale('zh-cn')
@@ -77,7 +78,10 @@ export function getMonthDate() {
 
 // 取上个月第一天至最后一天日期，格式为 YYYY-MM-DD 用dayjs
 export function getLastMonthDate() {
-  const start = dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD')
+  const start = dayjs()
+    .subtract(1, 'month')
+    .startOf('month')
+    .format('YYYY-MM-DD')
   const end = dayjs().subtract(1, 'month').endOf('month').format('YYYY-MM-DD')
   return { start, end }
 }
@@ -135,7 +139,10 @@ export function getSuffix(str: string) {
   return index > -1 ? str.substring(index + 1) : ''
 }
 
-export function drawPrizes(participants: lotteryList[], numWinners: number): lotteryList[] {
+export function drawPrizes(
+  participants: lotteryList[],
+  numWinners: number,
+): lotteryList[] {
   const winners: lotteryList[] = []
   const participantsCopy: lotteryList[] = [...participants] // 复制原数组以避免修改原始数据
 
@@ -201,6 +208,16 @@ export async function sendImgVideo(
     await downloadFile(url, `${curPath}/${curNow}_.${type}`)
     // await updateScore(data.sender, data.roomid, -config.gptScore);
     await sendImage(`${curPath}/${curNow}_.${type}`, data.from_id)
+  }
+  catch (err) {
+    await sendText('接口错误', data.from_id)
+  }
+}
+
+export async function sendTextByGet(data: msg, url: string, payload = {}) {
+  try {
+    const res = await getText(url, payload)
+    await sendText(res.trim(), data.from_id)
   }
   catch (err) {
     await sendText('接口错误', data.from_id)

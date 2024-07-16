@@ -25,6 +25,10 @@ export const main: event[] = [
 
       const menuList: string[] = [
         '打卡',
+        '天气',
+        'emo',
+        '骚话',
+        '土味情话',
         '今日摸鱼',
         '本周摸鱼',
         '金币排行',

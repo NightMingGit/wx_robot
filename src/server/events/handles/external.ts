@@ -1,7 +1,5 @@
 import type { event } from '@server/type/type'
-import { sendImgVideo } from '@server/utils/utils'
-import { eat } from '@server/api/api'
-import { sendText } from '@server/api/system'
+import { sendImgVideo, sendTextByGet } from '@server/utils/utils'
 
 export const handlesExternal: event[] = [
   {
@@ -30,13 +28,9 @@ export const handlesExternal: event[] = [
     type: 0,
     keys: ['吃啥'],
     handle: async (data) => {
-      try {
-        const res = await eat()
-        await sendText(res.msg, data.from_id)
-      }
-      catch (e) {
-        await sendText('吃啥接口异常', data.from_id)
-      }
+      if (data.content !== '吃啥')
+        return
+      sendTextByGet(data, 'https://api.yujn.cn/api/chi.php')
     },
   },
   {
@@ -54,14 +48,22 @@ export const handlesExternal: event[] = [
     type: 0,
     keys: ['白丝视频'],
     handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/baisis.php?type=video', 'mp4')
+      await sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/baisis.php?type=video',
+        'mp4',
+      )
     },
   },
   {
     type: 0,
     keys: ['黑丝视频'],
     handle: async (data) => {
-      await sendImgVideo(data, 'http://api.yujn.cn/api/heisis.php?type=video', 'mp4')
+      await sendImgVideo(
+        data,
+        'http://api.yujn.cn/api/heisis.php?type=video',
+        'mp4',
+      )
     },
   },
   {
@@ -101,11 +103,44 @@ export const handlesExternal: event[] = [
     type: 0,
     keys: ['降雨量'],
     handle: async (data) => {
-      await sendImgVideo(
-        data,
-        'http://api.yujn.cn/api/jiangyu.php?',
-        'png',
-      )
+      await sendImgVideo(data, 'http://api.yujn.cn/api/jiangyu.php?', 'png')
+    },
+  },
+  {
+    type: 1,
+    keys: ['天气#'],
+    handle: async (data) => {
+      if (!data.content.startsWith('天气#'))
+        return
+      const address = data.content.split('#')[1]
+      sendTextByGet(data, 'http://api.yujn.cn/api/qqtq.php', { msg: address })
+    },
+  },
+  {
+    type: 0,
+    keys: ['emo'],
+    handle: async (data) => {
+      if (data.content !== 'emo')
+        return
+      sendTextByGet(data, 'http://api.yujn.cn/api/sgyl.php')
+    },
+  },
+  {
+    type: 0,
+    keys: ['骚话'],
+    handle: async (data) => {
+      if (data.content !== '骚话')
+        return
+      sendTextByGet(data, 'http://api.yujn.cn/api/text_wu.php')
+    },
+  },
+  {
+    type: 0,
+    keys: ['土味情话'],
+    handle: async (data) => {
+      if (data.content !== '土味情话')
+        return
+      sendTextByGet(data, 'http://api.yujn.cn/api/qinghua.php')
     },
   },
 ]
