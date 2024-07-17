@@ -19,6 +19,7 @@ import config from '@server/config'
 import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
 import { daily } from '@server/api/api'
+import dayjs from 'dayjs'
 
 export const handlesIndex: event[] = [
   {
@@ -130,8 +131,10 @@ export const handlesIndex: event[] = [
       const res = await getLotteryLogList(data.sender, data.roomid)
       const text = res
         .map(
-          (item: any) =>
-            `[ ${item.date} ]\n${item.name}(${item.getType === '0' ? '每日' : '宝箱'})`,
+          (item: any) => {
+            item.date = dayjs(item.date).format('MM-DD HH:mm')
+            return `[ ${item.date} ]${item.name}(${item.getType === '0' ? '每日' : '宝箱'})`
+          },
         )
         .join('\n')
       await sendText(
