@@ -65,6 +65,7 @@ export async function deleteUser(user_id: string, group_id: string) {
     },
   })
 }
+
 // card字段+1
 export async function updateCard(user_id: string, group_id: string) {
   return await user.update(
@@ -79,6 +80,7 @@ export async function updateCard(user_id: string, group_id: string) {
     },
   )
 }
+
 // score排行前10
 export async function getTop10(group_id: string) {
   return await user.findAll({
@@ -93,6 +95,7 @@ export async function getTop10(group_id: string) {
     raw: true,
   })
 }
+
 // card排行前10
 export async function getTop10Card(group_id: string) {
   return await user.findAll({
@@ -120,6 +123,7 @@ export async function getTop1(group_id: string) {
     raw: true,
   })
 }
+
 // 设置daily字段
 export async function setDaily(user_id: string, group_id: string, daily: string) {
   return await user.update(
@@ -133,4 +137,9 @@ export async function setDaily(user_id: string, group_id: string, daily: string)
       },
     },
   )
+}
+
+// 删除所有人的daily字段
+export async function deleteDaily(group_id: string) {
+  return await user.update({ daily: '' }, { where: { group_id } })
 }

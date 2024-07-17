@@ -48,6 +48,11 @@ export const main: event[] = [
         '白丝视频',
         '假期查询',
         '下班时间',
+        '降雨量',
+        '天气',
+        'emo',
+        '骚话',
+        '土味情话',
       ]
 
       const menus = menuList.map((item, index) => `${index + 1}.${item}`)

@@ -1,7 +1,7 @@
 import { get } from '@server/request'
 
 export function daily() {
-  return get('https://api.yujn.cn/api/dujitang.php', {})
+  return get('http://api.yujn.cn/api/wenrou.php?', {})
 }
 // 降雨量
 export function rainfall() {

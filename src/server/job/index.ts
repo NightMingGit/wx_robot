@@ -1,12 +1,17 @@
 import cron from 'node-cron'
 import { getActiveGroupIds } from '@server/global'
 import { getGroupMembers } from '@server/events/common'
-import { deleteUser, getGroupUsers, getTop1, updateUser } from '@server/services/user'
+import { deleteDaily, deleteUser, getGroupUsers, getTop1, updateUser } from '@server/services/user'
 import { findDifferences } from '@server/utils/utils'
 import { sendText } from '@server/api/system'
 import { delSign } from '@server/services/sign'
 import { deleteMessage } from '@server/services/message'
 import { drawPrizeFun } from '@server/events/handles'
+
+// 每天0点重置
+cron.schedule('0 0 * * *', async () => {
+  await deleteDaily('45563492329@chatroom')
+})
 
 cron.schedule('*/30 * * * * *', async () => {
   await checkGroupAndRename()
