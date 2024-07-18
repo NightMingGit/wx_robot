@@ -24,11 +24,8 @@ import { daily } from '@server/api/api'
 const signHandle = _.debounce(async (data: msg) => {
   const signResult = await signFunction(data)
   const lotteryResult = await lotteryFunction(data)
-  let dailyText: string = ''
-  if (data.userInfo.daily) {
-    dailyText = data.userInfo.daily
-  }
-  else {
+  let dailyText = data.userInfo.daily || ''
+  if (!dailyText) {
     try {
       dailyText = await daily()
       await setDaily(data.sender, data.from_id, dailyText)
