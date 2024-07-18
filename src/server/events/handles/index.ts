@@ -1,5 +1,4 @@
 import type { event, lotteryList, msg, prize } from '@server/type/type'
-
 import {
   getNoRecordUserLastMonth,
   getNoRecordUserThisMonth,
@@ -18,9 +17,31 @@ import { createLottery, endLottery, getLottery, saveList } from '@server/service
 import config from '@server/config'
 import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
-import { daily } from '@server/api/api'
 import dayjs from 'dayjs'
+import _ from 'lodash'
+import { daily } from '@server/api/api'
 
+const signHandle = _.debounce(async (data: msg) => {
+  const signResult = await signFunction(data)
+  const lotteryResult = await lotteryFunction(data)
+  let dailyText: string = ''
+  if (data.userInfo.daily) {
+    dailyText = data.userInfo.daily
+  }
+  else {
+    try {
+      dailyText = await daily()
+      await setDaily(data.sender, data.from_id, dailyText)
+    }
+    catch (e) {
+      dailyText = ''
+    }
+  }
+  await sendText(
+        `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}\n今日鸡汤：${dailyText.trim()}`,
+        data.from_id,
+  )
+})
 export const handlesIndex: event[] = [
   {
     type: 0,
@@ -147,27 +168,7 @@ export const handlesIndex: event[] = [
     type: 0,
     keys: ['打卡', '签到'],
     is_group: true,
-    handle: async (data) => {
-      const signResult = await signFunction(data)
-      const lotteryResult = await lotteryFunction(data)
-      let dailyText: string = ''
-      if (data.userInfo.daily) {
-        dailyText = data.userInfo.daily
-      }
-      else {
-        try {
-          dailyText = await daily()
-          await setDaily(data.sender, data.from_id, dailyText)
-        }
-        catch (e) {
-          dailyText = ''
-        }
-      }
-      await sendText(
-        `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}\n今日鸡汤：${dailyText.trim()}`,
-        data.from_id,
-      )
-    },
+    handle: signHandle,
   },
   {
     type: 1,

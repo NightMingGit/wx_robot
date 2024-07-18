@@ -19,7 +19,7 @@ export interface event {
   keys: string[]
   is_group?: boolean
   isAdmin?: boolean
-  handle: (data: msg) => Promise<any>
+  handle: (data: msg) => any
 }
 
 export interface msg {
