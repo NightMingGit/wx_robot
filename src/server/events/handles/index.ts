@@ -41,7 +41,7 @@ const signHandle = _.debounce(async (data: msg) => {
         `@${data.userInfo.name}\n打卡：${signResult}\n抽奖：${lotteryResult}\n今日鸡汤：${dailyText.trim()}`,
         data.from_id,
   )
-})
+}, 1000, { leading: true, trailing: false })
 export const handlesIndex: event[] = [
   {
     type: 0,
