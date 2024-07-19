@@ -71,7 +71,7 @@ export const handlesIndex: event[] = [
       return
       // 取出金币
       const score: number = Number(data.content.split('#')[1])
-      console.log(score)
+      await sendText(`${score}`, data.from_id)
     },
   },
   {
