@@ -72,6 +72,10 @@ export const handlesIndex: event[] = [
       }
       // 取出金币
       const score: number = Number(data.content.split('#')[1])
+      if (score < 100) {
+        await sendText(`金币不能小于100`, data.from_id)
+        return
+      }
       // 判断金币是否足够
       if (data.userInfo.score < score) {
         await sendText(`金币不足`, data.from_id)
