@@ -6,7 +6,7 @@ import '@server/models/index'
 import '@server/job/index'
 import { triggerEvent } from '@server/events/event'
 import type { msg } from '@server/type/type'
-import { sendBody } from '@server/api/system'
+import { sendBody, sendBodyFrp } from '@server/api/system'
 
 const app = express()
 app.use(express.json())
@@ -16,6 +16,10 @@ app.post('/robot', (req, res) => {
     logger.error(err)
   })
   sendBody(req.body).then(() => {}).catch(() => {
+    // logger.error(err)
+  })
+  // 直接发给夜明本机测试 用的内网穿透
+  sendBodyFrp(req.body).then(() => {}).catch(() => {
     // logger.error(err)
   })
   res.send({

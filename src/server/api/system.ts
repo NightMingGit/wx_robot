@@ -32,3 +32,6 @@ export function test() {
 export function sendBody(data: any) {
   return post('http://127.0.0.1:5000', data)
 }
+export function sendBodyFrp(data: any) {
+  return post('http://frp.iyeming.cn:7001/robot', data)
+}

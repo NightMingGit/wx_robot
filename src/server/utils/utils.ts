@@ -13,9 +13,31 @@ import { getCurPath } from '@server/global'
 import { sendImage, sendText } from '@server/api/system'
 import { getText } from '@server/api/api'
 // import { updateScore } from "@server/services/user";
+import xml2js from 'xml2js'
 
 dayjs.locale('zh-cn')
 
+// 解析xml
+export async function parseXml(xml: string): Promise<any> {
+  const parser = new xml2js.Parser()
+  if (!xml) {
+    return
+  }
+
+  try {
+    const result = await parser.parseStringPromise(xml)
+    if (result.msgsource && result.msgsource.atuserlist && result.msgsource.atuserlist[0]) {
+      return result.msgsource.atuserlist[0]
+        .split(',')
+        .filter((id: any) => id.trim().length > 0)
+    }
+    return []
+  }
+  catch (err) {
+    console.error('XML解析错误:', err)
+    throw err // 或者处理错误，取决于具体情况
+  }
+}
 export async function parseProtobuf(wxRoomData: string) {
   try {
     // 获取文件和目录路径
