@@ -15,7 +15,7 @@ import { getTop10, getTop10Card, getUserInfo, setDaily, updateCard, updateScore 
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 import config from '@server/config'
-import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
+import { drawPrizes, getRandomElement, getWeekDay, parseXml } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
 import dayjs from 'dayjs'
 import _ from 'lodash'
@@ -49,6 +49,27 @@ const scoreRankHandle = _.debounce(async (data: msg) => {
 }, 10000, { leading: true, trailing: false })
 
 export const handlesIndex: event[] = [
+  {
+    type: 1,
+    keys: ['赠送金币#'],
+    is_group: true,
+    handle: async (data) => {
+      // 如果content里面包含@所有人 则不做处理
+      if (data.content.includes('@所有人'))
+        return
+      // 取出艾特列表
+      const atList = await parseXml(data.xml)
+      if (!atList || atList.length <= 0)
+        return
+      // 判断格式是否正确 @用户 赠送金币#111 只能是整数 并且大于100
+      if (!/^@.*\s赠送金币#\d{1,3}$/.test(data.content))
+        await sendText(`格式不正确，请使用 @用户 赠送金币#111`, data.from_id)
+      return
+      // 取出金币
+      const score = Number.parseInt(data.content.split('#')[1])
+      console.log(score)
+    },
+  },
   {
     type: 0,
     keys: ['本月未发言'],
