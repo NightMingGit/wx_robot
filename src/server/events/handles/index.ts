@@ -72,7 +72,19 @@ export const handlesIndex: event[] = [
       }
       // 取出金币
       const score: number = Number(data.content.split('#')[1])
-      await sendText(`${score}`, data.from_id)
+      // 判断金币是否足够
+      if (data.userInfo.score < score) {
+        await sendText(`金币不足`, data.from_id)
+        return
+      }
+
+      // 需要扣除10%的手续费
+      const score_ = Math.floor(score * 0.9)
+      // 给被艾特的人+
+      await updateScore(atList[0], data.from_id, score_)
+      // 给自己-
+      await updateScore(data.sender, data.from_id, -score)
+      await sendText(`赠送成功，实际到账${score_}金币`, data.from_id)
     },
   },
   {
