@@ -83,7 +83,7 @@ export const handlesIndex: event[] = [
       }
 
       // 需要扣除10%的手续费
-      const score_ = Math.floor(score * 0.9)
+      const score_ = Math.floor(score * 0.8)
       // 给被艾特的人+
       await updateScore(atList[0], data.from_id, score_)
       // 给自己-
