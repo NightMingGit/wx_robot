@@ -18,10 +18,10 @@ import xml2js from 'xml2js'
 dayjs.locale('zh-cn')
 
 // 解析xml
-export async function parseXml(xml: string): Promise<any> {
+export async function parseXml(xml: string): Promise<any[]> {
   const parser = new xml2js.Parser()
   if (!xml) {
-    return
+    return []
   }
 
   try {

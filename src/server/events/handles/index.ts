@@ -59,14 +59,18 @@ export const handlesIndex: event[] = [
         return
       // 取出艾特列表
       const atList = await parseXml(data.xml)
-      if (!atList || atList.length <= 0)
+      if (!atList)
         return
+      if (atList.length > 1) {
+        await sendText('一次只能@一个人', data.from_id)
+        return
+      }
       // 判断格式是否正确 @用户 赠送金币#111 只能是整数 并且大于100
       if (!/^@.*\s赠送金币#\d{1,3}$/.test(data.content))
         await sendText(`格式不正确，请使用 @用户 赠送金币#111`, data.from_id)
       return
       // 取出金币
-      const score = Number.parseInt(data.content.split('#')[1])
+      const score: number = Number(data.content.split('#')[1])
       console.log(score)
     },
   },
