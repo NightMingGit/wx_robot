@@ -39,6 +39,15 @@ const signHandle = _.debounce(async (data: msg) => {
         data.from_id,
   )
 }, 1000, { leading: true, trailing: false })
+
+const scoreRankHandle = _.debounce(async (data: msg) => {
+  const result = await getTop10(data.from_id)
+  const rankText = result
+    .map((item: any, index) => `${index + 1}.${item.name}(${item.score})`)
+    .join('\n')
+  await sendText(rankText, data.from_id)
+}, 10000, { leading: true, trailing: false })
+
 export const handlesIndex: event[] = [
   {
     type: 0,
@@ -97,13 +106,7 @@ export const handlesIndex: event[] = [
     type: 0,
     keys: ['金币排行'],
     is_group: true,
-    handle: async (data) => {
-      const result = await getTop10(data.from_id)
-      const rankText = result
-        .map((item: any, index) => `${index + 1}.${item.name}(${item.score})`)
-        .join('\n')
-      await sendText(rankText, data.from_id)
-    },
+    handle: scoreRankHandle,
   },
   {
     type: 0,
