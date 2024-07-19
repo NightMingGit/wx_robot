@@ -66,9 +66,10 @@ export const handlesIndex: event[] = [
         return
       }
       // 判断格式是否正确 @用户 赠送金币#111 只能是整数 并且大于100
-      if (!/^@.*\s赠送金币#\d{1,3}$/.test(data.content))
+      if (!/^@.*\s赠送金币#\d{1,3}$/.test(data.content)) {
         await sendText(`格式不正确，请使用 @用户 赠送金币#111`, data.from_id)
-      return
+        return
+      }
       // 取出金币
       const score: number = Number(data.content.split('#')[1])
       await sendText(`${score}`, data.from_id)
