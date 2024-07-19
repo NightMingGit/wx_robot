@@ -65,8 +65,8 @@ export const handlesIndex: event[] = [
         await sendText('一次只能@一个人', data.from_id)
         return
       }
-      // 判断格式是否正确 @用户 赠送金币#111 只能是整数 并且大于100
-      if (!/^@.*\s赠送金币#\d{1,3}$/.test(data.content)) {
+      // 判断格式是否正确 @用户 赠送金币#整数 只能是整数 并且大于100
+      if (!/^@.*\s赠送金币#[1-9]\d*$/.test(data.content)) {
         await sendText(`格式不正确，请使用 @用户 赠送金币#111`, data.from_id)
         return
       }
