@@ -214,9 +214,18 @@ export async function sendImgVideo(
   }
 }
 
-export async function sendTextByGet(data: msg, url: string, payload = {}) {
+export async function sendTextByGet(
+  data: msg,
+  url: string,
+  payload = {},
+  cb?: (res: any) => void,
+) {
   try {
     const res = await getText(url, payload)
+    if (cb) {
+      cb(res)
+      return
+    }
     await sendText(res.trim(), data.from_id)
   }
   catch (err) {

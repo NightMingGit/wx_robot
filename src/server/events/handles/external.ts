@@ -1,5 +1,6 @@
 import type { event } from '@server/type/type'
 import { sendImgVideo, sendTextByGet } from '@server/utils/utils'
+import { sendText } from '@server/api/system'
 
 export const handlesExternal: event[] = [
   {
@@ -113,7 +114,20 @@ export const handlesExternal: event[] = [
       if (!data.content.startsWith('天气#'))
         return
       const address = data.content.split('#')[1]
-      sendTextByGet(data, 'http://api.yujn.cn/api/qqtq.php', { msg: address })
+      sendTextByGet(
+        data,
+        'https://api.vvhan.com/api/weather',
+        { city: address },
+        async (res: any) => {
+          if (res.success) {
+            const str = `城市：${res.city}\n气温：${res.data.low}/${res.data.high}\n${res.data.week}；${res.data.type}；${res.data.fengxiang}/${res.data.fengli}\n${res.tip}`
+            await sendText(str, data.from_id)
+          }
+          else {
+            await sendText('接口错误', data.from_id)
+          }
+        },
+      )
     },
   },
   {
