@@ -15,7 +15,7 @@ import { getTop10, getTop10Card, getUserInfo, setDaily, updateCard, updateScore 
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
 import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
 import config from '@server/config'
-import { drawPrizes, getRandomElement, getWeekDay } from '@server/utils/utils'
+import { drawPrizes, getRandomElement, getWeekDay, parseXml } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
 import dayjs from 'dayjs'
 import _ from 'lodash'
@@ -49,6 +49,48 @@ const scoreRankHandle = _.debounce(async (data: msg) => {
 }, 10000, { leading: true, trailing: false })
 
 export const handlesIndex: event[] = [
+  {
+    type: 1,
+    keys: ['赠送金币#'],
+    is_group: true,
+    handle: async (data) => {
+      // 如果content里面包含@所有人 则不做处理
+      if (data.content.includes('@所有人'))
+        return
+      // 取出艾特列表
+      const atList = await parseXml(data.xml)
+      if (!atList)
+        return
+      if (atList.length > 1) {
+        await sendText('一次只能@一个人', data.from_id)
+        return
+      }
+      // 判断格式是否正确 @用户 赠送金币#整数 只能是整数 并且大于100
+      if (!/^@.*\s赠送金币#[1-9]\d*$/.test(data.content)) {
+        await sendText(`格式不正确，请使用 @用户 赠送金币#111`, data.from_id)
+        return
+      }
+      // 取出金币
+      const score: number = Number(data.content.split('#')[1])
+      if (score < 100) {
+        await sendText(`金币不能小于100`, data.from_id)
+        return
+      }
+      // 判断金币是否足够
+      if (data.userInfo.score < score) {
+        await sendText(`金币不足`, data.from_id)
+        return
+      }
+
+      // 需要扣除10%的手续费
+      const score_ = Math.floor(score * 0.8)
+      // 给被艾特的人+
+      await updateScore(atList[0], data.from_id, score_)
+      // 给自己-
+      await updateScore(data.sender, data.from_id, -score)
+      await sendText(`赠送成功，实际到账${score_}金币`, data.from_id)
+    },
+  },
   {
     type: 0,
     keys: ['本月未发言'],

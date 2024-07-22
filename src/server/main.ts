@@ -18,6 +18,10 @@ app.post('/robot', (req, res) => {
   sendBody(req.body).then(() => {}).catch(() => {
     // logger.error(err)
   })
+  // 直接发给夜明本机测试 用的内网穿透
+  // sendBodyFrp(req.body).then(() => {}).catch(() => {
+  //   // logger.error(err)
+  // })
   res.send({
     status: '0',
     message: 'success',
