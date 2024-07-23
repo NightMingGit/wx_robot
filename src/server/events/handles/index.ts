@@ -366,8 +366,8 @@ export const handlesIndex: event[] = [
         return list.some((item: any) => item.userId === data.sender)
       }).length || 0
       let sendText_ = ''
-      sendText_ += `@${data.userInfo.name}`
-      sendText_ += `参与抽奖次数：${count}`
+      sendText_ += `@${data.userInfo.name}\n`
+      sendText_ += `参与抽奖次数：${count}\n`
       sendText_ += `中奖次数：${winnerCount}`
       await sendText(sendText_, data.from_id)
     },
