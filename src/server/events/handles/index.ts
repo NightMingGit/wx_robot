@@ -13,7 +13,7 @@ import { drawPrize, syncGroups } from '@server/events/common'
 import { isSign, sign } from '@server/services/sign'
 import { getTop10, getTop10Card, getUserInfo, setDaily, updateCard, updateScore } from '@server/services/user'
 import { createLotteryLog, getLotteryLogList, getTodayLotteryLog } from '@server/services/lotteryLog'
-import { createLottery, endLottery, getLottery, saveList } from '@server/services/lottery'
+import { createLottery, endLottery, getLottery, getLotteryByGroup, saveList } from '@server/services/lottery'
 import config from '@server/config'
 import { drawPrizes, getRandomElement, getWeekDay, parseXml } from '@server/utils/utils'
 import { getPrizeList } from '@server/services/prize'
@@ -347,6 +347,22 @@ export const handlesIndex: event[] = [
 
       // 发送消息
       await sendText(message, data.from_id, mentionIds)
+    },
+  },
+  {
+    type: 0,
+    is_group: true,
+    keys: ['我的抽奖信息'],
+    handle: async (data) => {
+      const list = await getLotteryByGroup(data.from_id)
+      // 查询参与过抽奖的次数 list是个json string格式 {userId,name} 也就是查询data.sender在list里面出现过几次
+      const count = list.filter((item: any) => {
+        const list = JSON.parse(item.list) || []
+        return list.some((item: any) => item.userId === data.sender)
+      }).length
+      let sendText = ''
+      sendText += `我参与抽奖的次数${count}`
+      await sendText(sendText, data.from_id)
     },
   },
 ]

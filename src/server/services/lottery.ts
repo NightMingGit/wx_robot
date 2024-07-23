@@ -50,3 +50,12 @@ export async function endLottery(id: number, winner: string) {
     },
   )
 }
+// 根据group_id 查询记录
+export async function getLotteryByGroup(group_id: string) {
+  return await model.findAll({
+    where: {
+      group_id,
+    },
+    raw: true,
+  })
+}
