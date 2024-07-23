@@ -1,8 +1,9 @@
 {
-  "name": "vite-vue-typescript-starter",
+  "name": "wechat-robot",
   "type": "module",
   "version": "0.0.0",
-  "private": true,
+  "author": "NightMing 961880295@qq.com",
+  "private": false,
   "scripts": {
     "dev": "nodemon -w src/server -x tsx src/server/main.ts",
     "start": "tsx src/server/main.ts",
