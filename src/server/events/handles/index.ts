@@ -355,13 +355,20 @@ export const handlesIndex: event[] = [
     keys: ['我的抽奖信息'],
     handle: async (data) => {
       const list = await getLotteryByGroup(data.from_id)
-      // 查询参与过抽奖的次数 list是个json string格式 {userId,name} 也就是查询data.sender在list里面出现过几次
+      // 查询参与过抽奖的次数
       const count = list.filter((item: any) => {
         const list = JSON.parse(item.list) || []
         return list.some((item: any) => item.userId === data.sender)
-      }).length
+      }).length || 0
+      // 查询中奖次数
+      const winnerCount = list.filter((item: any) => {
+        const list = JSON.parse(item.winner) || []
+        return list.some((item: any) => item.userId === data.sender)
+      }).length || 0
       let sendText_ = ''
-      sendText_ += `我参与抽奖的次数${count}`
+      sendText_ += `@${data.userInfo.name}`
+      sendText_ += `参与抽奖次数：${count}`
+      sendText_ += `中奖次数：${winnerCount}`
       await sendText(sendText_, data.from_id)
     },
   },
