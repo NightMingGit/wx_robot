@@ -13,8 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.post('/robot', (req, res) => {
   triggerEvent(req.body as msg).then().catch((err) => {
-    console.log(err)
-    logger.error(err)
+    logger.error(`[triggerEvent error] ${err}`)
   })
   sendBody(req.body).then(() => {}).catch(() => {
     // logger.error(err)

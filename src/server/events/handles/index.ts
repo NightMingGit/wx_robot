@@ -360,9 +360,9 @@ export const handlesIndex: event[] = [
         const list = JSON.parse(item.list) || []
         return list.some((item: any) => item.userId === data.sender)
       }).length
-      let sendText = ''
-      sendText += `我参与抽奖的次数${count}`
-      await sendText(sendText, data.from_id)
+      let sendText_ = ''
+      sendText_ += `我参与抽奖的次数${count}`
+      await sendText(sendText_, data.from_id)
     },
   },
 ]
