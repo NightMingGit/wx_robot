@@ -367,6 +367,7 @@ export const handlesIndex: event[] = [
       }).length || 0
       let sendText_ = ''
       sendText_ += `@${data.userInfo.name}\n`
+      sendText_ += `本群总抽奖次数：${list.length}\n`
       sendText_ += `参与抽奖次数：${count}\n`
       sendText_ += `中奖次数：${winnerCount}`
       await sendText(sendText_, data.from_id)
